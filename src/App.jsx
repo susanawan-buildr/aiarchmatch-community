@@ -106,7 +106,7 @@ function AuthModal({ onClose, onLogin }) {
             <input
               value={username}
               onChange={e => setUsername(e.target.value.toLowerCase().replace(/[^a-z0-9_]/g, ""))}
-              placeholder="Choose a username e.g. aj_awan"
+              placeholder="Choose a username"
               style={{ ...inp, marginBottom:4 }}
             />
             <div style={{ fontSize:11, color:"#aaa", paddingLeft:2 }}>
@@ -396,7 +396,7 @@ export function App() {
                     <div style={{ fontFamily:"Georgia,serif", fontSize:15, fontWeight:700, color:"#0f0e0d", marginBottom:6, lineHeight:1.3 }}>{p.title}</div>
                     <div style={{ fontSize:13, color:"#7a7570", lineHeight:1.6, display:"-webkit-box", WebkitLineClamp:2, WebkitBoxOrient:"vertical", overflow:"hidden" }}>{p.body}</div>
                     <div style={{ marginTop:8, display:"flex", gap:12, alignItems:"center" }}><span style={{ fontSize:12, color:"#aaa" }}>💬 {p.comment_count||0} comment{p.comment_count!==1?"s":""}</span><button onClick={e=>handleShare(e,p.id)} style={{ background:"none", border:"none", cursor:"pointer", fontSize:12, color:copiedId===p.id?"#1e7a47":"#aaa", display:"flex", alignItems:"center", gap:4, padding:0 }}>{copiedId===p.id ? "✓ Link copied!" : "🔗 Share"}</button>
-                      {currentUser?.is_admin && <button onClick={e=>handleDeletePost(e,p.id)} style={{ background:"none", border:"none", cursor:"pointer", fontSize:12, color:"#c0392b", display:"flex", alignItems:"center", gap:4, padding:0, marginLeft:4 }}>🗑️ Delete</button>}
+                      {currentUser?.is_admin === true && <button onClick={e=>handleDeletePost(e,p.id)} style={{ background:"none", border:"none", cursor:"pointer", fontSize:12, color:"#c0392b", display:"flex", alignItems:"center", gap:4, padding:0, marginLeft:4 }}>🗑️ Delete</button>}
                     </div>
                   </div>
                 </div>
@@ -456,7 +456,7 @@ export default function Root() {
 }
 
 // ─── POST PAGE (direct URL access) ───
-export function PostPage({ currentUser, onAuthRequired, onVote, copiedId, handleShare }) {
+export function PostPage({ currentUser: propUser, onAuthRequired, onVote, copiedId, handleShare }) {
   const { id } = useParams();
   const navigate = useNavigate();
   const [post, setPost] = useState(null);
@@ -464,6 +464,22 @@ export function PostPage({ currentUser, onAuthRequired, onVote, copiedId, handle
   const [commentText, setCommentText] = useState("");
   const [loading, setLoading] = useState(true);
   const [commentLoading, setCommentLoading] = useState(false);
+  const [currentUser, setCurrentUser] = useState(propUser);
+
+  useEffect(() => {
+    setCurrentUser(propUser);
+  }, [propUser]);
+
+  useEffect(() => {
+    if (!propUser) {
+      supabase.auth.getSession().then(async ({ data: { session } }) => {
+        if (session) {
+          const { data: u } = await supabase.from("users").select("*").eq("id", session.user.id).single();
+          if (u) setCurrentUser(u);
+        }
+      });
+    }
+  }, [propUser]);
 
   useEffect(() => {
     supabase.from("posts").select("*").eq("id", id).single()
