@@ -1,4 +1,4 @@
-import { useState, useEffect, useCallback } from "react";
+import React, { useState, useEffect, useCallback } from "react";
 import { createClient } from "@supabase/supabase-js";
 import { useNavigate, useParams, Routes, Route } from "react-router-dom";
 
@@ -53,7 +53,20 @@ const s = {
   btnOut: { background:"none", border:"1px solid #e8e2d8", borderRadius:3, padding:"6px 14px", fontSize:13, cursor:"pointer", color:"#7a7570" },
 };
 
-function Avatar({ letter, size=32 }) {
+function Avatar({ letter, username, size=32 }) {
+  const [imgError, setImgError] = React.useState(false);
+  if (username && !imgError) {
+    return (
+      <img
+        src={`https://api.dicebear.com/7.x/bottts/svg?seed=${encodeURIComponent(username)}`}
+        alt={username}
+        width={size}
+        height={size}
+        style={{ width:size, height:size, borderRadius:"50%", flexShrink:0, background:"#f5f0e8", display:"block" }}
+        onError={() => setImgError(true)}
+      />
+    );
+  }
   return <div style={{ width:size, height:size, borderRadius:"50%", background:ac(letter), color:"white", display:"flex", alignItems:"center", justifyContent:"center", fontWeight:700, fontSize:size*0.4, flexShrink:0, fontFamily:"Georgia,serif" }}>{letter?.toUpperCase()}</div>;
 }
 
