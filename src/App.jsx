@@ -333,12 +333,29 @@ export function App() {
           </div>
           <div style={{ background:"white", border:"1px solid #e8e2d8", borderRadius:6, padding:14 }}>
             <div style={{ fontSize:12, fontWeight:600, color:"#0f0e0d", marginBottom:8, fontFamily:"Georgia,serif" }}>About</div>
-            <div style={{ fontSize:12, color:"#7a7570", lineHeight:1.6, marginBottom:12 }}>The home for AI automation builders. Share what you build, learn from others, find work. Free to join.</div>
-            <div style={{ fontSize:12, color:"#aaa", display:"flex", flexDirection:"column", gap:4, marginBottom:14 }}>
-              <div>🤖 All AI tools welcome</div>
-              <div>🔒 No real names needed</div>
-              <div>🌍 Global community</div>
+            <div style={{ fontSize:12, color:"#7a7570", lineHeight:1.7, marginBottom:10 }}>
+              For developers, entrepreneurs, creators and AI enthusiasts who want to explore, learn and grow with Claude and other AI tools.
             </div>
+            <div style={{ fontSize:11, fontWeight:600, color:"#0f0e0d", marginBottom:4 }}>We focus on</div>
+            <div style={{ fontSize:11, color:"#7a7570", display:"flex", flexDirection:"column", gap:3, marginBottom:10 }}>
+              <div>✦ Prompt engineering and real use cases</div>
+              <div>✦ AI-powered business automation</div>
+              <div>✦ Content, coding and productivity</div>
+              <div>✦ Tips, updates and best practices</div>
+              <div>✦ Problem-solving and collaboration</div>
+            </div>
+            <div style={{ fontSize:11, fontWeight:600, color:"#0f0e0d", marginBottom:4 }}>You will</div>
+            <div style={{ fontSize:11, color:"#7a7570", display:"flex", flexDirection:"column", gap:3, marginBottom:10 }}>
+              <div>✦ Master AI tools faster</div>
+              <div>✦ Build smarter workflows</div>
+              <div>✦ Scale your business with AI</div>
+              <div>✦ Stay ahead in the AI revolution</div>
+            </div>
+            <div style={{ fontSize:11, fontWeight:600, color:"#c8692a", marginBottom:4 }}>Our mission</div>
+            <div style={{ fontSize:11, color:"#7a7570", lineHeight:1.6, marginBottom:12 }}>
+              A supportive, high-value community where people learn, share and innovate with AI — beginners and experts alike.
+            </div>
+            <div style={{ fontSize:11, color:"#aaa", paddingTop:8, borderTop:"1px solid #e8e2d8" }}>🌍 Global community · Free to join</div>
             <button style={{ display:"block", width:"100%", background:"#c8692a", color:"white", border:"none", borderRadius:3, padding:8, fontSize:12, fontWeight:500, cursor:"pointer" }} onClick={()=>currentUser?setShowNew(true):setShowAuth(true)}>Create Post</button>
           </div>
         </div>
@@ -630,12 +647,29 @@ export function PostPage({ currentUser: propUser, onAuthRequired, onVote, copied
           </div>
           <div style={{ background:"white", border:"1px solid #e8e2d8", borderRadius:6, padding:14 }}>
             <div style={{ fontSize:12, fontWeight:600, color:"#0f0e0d", marginBottom:8, fontFamily:"Georgia,serif" }}>About</div>
-            <div style={{ fontSize:12, color:"#7a7570", lineHeight:1.6, marginBottom:12 }}>The home for AI automation builders. Share what you build, learn from others, find work.</div>
-            <div style={{ fontSize:12, color:"#aaa", display:"flex", flexDirection:"column", gap:4 }}>
-              <div>🤖 All AI tools welcome</div>
-              <div>🔒 No real names needed</div>
-              <div>🌍 Global community</div>
+            <div style={{ fontSize:12, color:"#7a7570", lineHeight:1.7, marginBottom:10 }}>
+              For developers, entrepreneurs, creators and AI enthusiasts who want to explore, learn and grow with Claude and other AI tools.
             </div>
+            <div style={{ fontSize:11, fontWeight:600, color:"#0f0e0d", marginBottom:4 }}>We focus on</div>
+            <div style={{ fontSize:11, color:"#7a7570", display:"flex", flexDirection:"column", gap:3, marginBottom:10 }}>
+              <div>✦ Prompt engineering and real use cases</div>
+              <div>✦ AI-powered business automation</div>
+              <div>✦ Content, coding and productivity</div>
+              <div>✦ Tips, updates and best practices</div>
+              <div>✦ Problem-solving and collaboration</div>
+            </div>
+            <div style={{ fontSize:11, fontWeight:600, color:"#0f0e0d", marginBottom:4 }}>You will</div>
+            <div style={{ fontSize:11, color:"#7a7570", display:"flex", flexDirection:"column", gap:3, marginBottom:10 }}>
+              <div>✦ Master AI tools faster</div>
+              <div>✦ Build smarter workflows</div>
+              <div>✦ Scale your business with AI</div>
+              <div>✦ Stay ahead in the AI revolution</div>
+            </div>
+            <div style={{ fontSize:11, fontWeight:600, color:"#c8692a", marginBottom:4 }}>Our mission</div>
+            <div style={{ fontSize:11, color:"#7a7570", lineHeight:1.6, marginBottom:12 }}>
+              A supportive, high-value community where people learn, share and innovate with AI — beginners and experts alike.
+            </div>
+            <div style={{ fontSize:11, color:"#aaa", paddingTop:8, borderTop:"1px solid #e8e2d8" }}>🌍 Global community · Free to join</div>
           </div>
         </div>
 
