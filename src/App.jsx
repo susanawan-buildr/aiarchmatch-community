@@ -420,6 +420,13 @@ export function App({ currentUser, setCurrentUser, showAuth, setShowAuth, copied
   const [reportTarget, setReportTarget] = useState(null);
   const navigate = useNavigate();
 
+  useEffect(() => {
+    if (window.location.search.includes("create=1")) {
+      setShowNew(true);
+      window.history.replaceState({}, "", "/");
+    }
+  }, []);
+
   const fetchPosts = useCallback(async () => {
     const { data } = await supabase.from("posts").select("*, users(avatar_seed)").order("created_at", { ascending: false });
     const { data: cc } = await supabase.from("comments").select("post_id");
@@ -570,12 +577,38 @@ export function PostPage({ currentUser: propUser, onAuthRequired, copiedId, hand
       .then(({ data }) => setComments((data||[]).map(c => ({ ...c, author_avatar_seed: c.users?.avatar_seed }))));
   }, [id]);
 
+  const [commentImageFile, setCommentImageFile] = useState(null);
+  const [commentImagePreview, setCommentImagePreview] = useState(null);
+  const [commentImageError, setCommentImageError] = useState("");
+
+  const handleCommentImage = (e) => {
+    const file = e.target.files[0];
+    if (!file) return;
+    if (file.size > 4 * 1024 * 1024) { setCommentImageError("Image must be under 4MB"); return; }
+    if (!file.type.startsWith("image/")) { setCommentImageError("File must be an image"); return; }
+    setCommentImageError("");
+    setCommentImageFile(file);
+    setCommentImagePreview(URL.createObjectURL(file));
+  };
+
   const submitComment = async () => {
     if (!currentUser || !commentText.trim()) return;
     setCommentLoading(true);
-    const { data: nc } = await supabase.from("comments").insert({ post_id: id, author_id: currentUser.id, author_username: currentUser.username, body: commentText.trim() }).select().single();
+    let comment_image_url = null;
+    if (commentImageFile) {
+      const ext = commentImageFile.name.split(".").pop();
+      const fileName = `comment-${currentUser.id}-${Date.now()}.${ext}`;
+      const { error: uploadError } = await supabase.storage.from("post-images").upload(fileName, commentImageFile, { contentType: commentImageFile.type });
+      if (!uploadError) {
+        const { data: urlData } = supabase.storage.from("post-images").getPublicUrl(fileName);
+        comment_image_url = urlData.publicUrl;
+      }
+    }
+    const { data: nc } = await supabase.from("comments").insert({ post_id: id, author_id: currentUser.id, author_username: currentUser.username, body: commentText.trim(), image_url: comment_image_url }).select().single();
     if (nc) setComments(cs => [...cs, { ...nc, author_avatar_seed: currentUser.avatar_seed }]);
     setCommentText("");
+    setCommentImageFile(null);
+    setCommentImagePreview(null);
     setCommentLoading(false);
   };
 
@@ -623,7 +656,7 @@ export function PostPage({ currentUser: propUser, onAuthRequired, copiedId, hand
       </div>
 
       <div style={{ maxWidth:900, margin:"0 auto", padding:"20px 16px", display:"grid", gridTemplateColumns:"200px 1fr", gap:20 }}>
-        <Sidebar onCreatePost={()=>currentUser?null:onAuthRequired()} onChannelClick={()=>navigate("/")} activeChannel={null} />
+        <Sidebar onCreatePost={()=>{ if(!currentUser){onAuthRequired();return;} navigate("/?create=1"); }} onChannelClick={()=>navigate("/")} activeChannel={null} />
 
         <div>
           <button onClick={()=>navigate("/")} style={{ background:"none", border:"none", cursor:"pointer", color:"#c8692a", fontSize:13, fontWeight:500, padding:"0 0 16px", display:"flex", alignItems:"center", gap:4 }}>← Back to community</button>
@@ -653,7 +686,18 @@ export function PostPage({ currentUser: propUser, onAuthRequired, copiedId, hand
             <div style={{ background:"white", border:"1px solid #e8e2d8", borderRadius:6, padding:14, marginBottom:16 }}>
               <div style={{ fontSize:12, color:"#aaa", marginBottom:8 }}>Commenting as {getPrefix(currentUser)}/{currentUser.username}</div>
               <textarea value={commentText} onChange={e=>setCommentText(e.target.value)} placeholder="What are your thoughts?" style={{ width:"100%", minHeight:80, border:"1px solid #e8e2d8", borderRadius:4, padding:"10px 12px", fontFamily:"inherit", fontSize:13, resize:"vertical", color:"#0f0e0d", background:"#faf8f4", outline:"none", boxSizing:"border-box" }} onFocus={e=>e.target.style.borderColor="#c8692a"} onBlur={e=>e.target.style.borderColor="#e8e2d8"} />
-              <div style={{ marginTop:8, display:"flex", justifyContent:"flex-end" }}>
+              {commentImagePreview && (
+                <div style={{ position:"relative", display:"inline-block", marginTop:8 }}>
+                  <img src={commentImagePreview} alt="preview" style={{ maxWidth:"100%", maxHeight:150, borderRadius:4, border:"1px solid #e8e2d8", display:"block" }} />
+                  <button onClick={()=>{ setCommentImageFile(null); setCommentImagePreview(null); }} style={{ position:"absolute", top:4, right:4, background:"rgba(15,14,13,0.7)", color:"white", border:"none", borderRadius:"50%", width:20, height:20, cursor:"pointer", fontSize:12, display:"flex", alignItems:"center", justifyContent:"center" }}>×</button>
+                </div>
+              )}
+              {commentImageError && <div style={{ fontSize:11, color:"#c0392b", marginTop:4 }}>{commentImageError}</div>}
+              <div style={{ marginTop:8, display:"flex", justifyContent:"space-between", alignItems:"center" }}>
+                <label htmlFor="comment-image-upload" style={{ cursor:"pointer", fontSize:12, color:"#aaa", display:"flex", alignItems:"center", gap:4 }}>
+                  <span style={{ fontSize:16 }}>📎</span> Attach image
+                  <input id="comment-image-upload" type="file" accept="image/*" onChange={handleCommentImage} style={{ display:"none" }} />
+                </label>
                 <button onClick={submitComment} disabled={!commentText.trim()||commentLoading} style={{ background:commentText.trim()?"#c8692a":"#e8e2d8", color:commentText.trim()?"white":"#aaa", border:"none", borderRadius:3, padding:"7px 18px", fontSize:13, fontWeight:500, cursor:commentText.trim()?"pointer":"default" }}>{commentLoading?"Posting...":"Post Comment"}</button>
               </div>
             </div>
@@ -672,6 +716,7 @@ export function PostPage({ currentUser: propUser, onAuthRequired, copiedId, hand
                 <span style={{ fontSize:12, color:"#aaa" }}>· {timeAgo(c.created_at)}</span>
               </div>
               <div style={{ fontSize:13, color:"#3a3835", lineHeight:1.65, paddingLeft:32 }}>{c.body}</div>
+              {c.image_url && <img src={c.image_url} alt="comment" style={{ marginTop:8, marginLeft:32, maxWidth:"calc(100% - 32px)", maxHeight:300, borderRadius:4, border:"1px solid #e8e2d8", display:"block" }} />}
               <div style={{ paddingLeft:32, marginTop:6, display:"flex", gap:12 }}>
                 {!currentUser?.is_admin && currentUser && <button onClick={()=>setReportTarget({commentId:c.id})} style={{ background:"none", border:"none", cursor:"pointer", fontSize:11, color:"#aaa", padding:0 }}>🚩 Report</button>}
                 {currentUser?.is_admin===true && <button onClick={async()=>{ if(!window.confirm("Delete this comment?")) return; await supabase.from("comments").delete().eq("id",c.id); setComments(cs=>cs.filter(x=>x.id!==c.id)); }} style={{ background:"none", border:"none", cursor:"pointer", fontSize:11, color:"#c0392b", padding:0 }}>🗑️ Delete comment</button>}
