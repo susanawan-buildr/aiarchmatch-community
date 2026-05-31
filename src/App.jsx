@@ -92,8 +92,8 @@ function AuthModal({ onClose, onLogin }) {
     <div style={{ position:"fixed", inset:0, background:"rgba(15,14,13,0.55)", display:"flex", alignItems:"center", justifyContent:"center", zIndex:1000, padding:20 }} onClick={onClose}>
       <div style={{ background:"white", borderRadius:8, padding:28, width:"100%", maxWidth:420, boxShadow:"0 20px 60px rgba(0,0,0,0.15)" }} onClick={e=>e.stopPropagation()}>
         <div style={{ textAlign:"center", marginBottom:20 }}>
-          <div style={{ fontFamily:"Georgia,serif", fontSize:22, fontWeight:700 }}>AIArch<span style={{ color:"#c8692a" }}>Match</span></div>
-          <div style={{ fontSize:12, color:"#7a7570", marginTop:4 }}>Community</div>
+          <div style={{ fontFamily:"Georgia,serif", fontSize:22, fontWeight:700 }}>Claude AI<span style={{ color:"#c8692a" }}>Community</span></div>
+          <div style={{ fontSize:12, color:"#7a7570", marginTop:4 }}>AI Automation Community</div>
         </div>
         <div style={{ display:"flex", background:"#f5f0e8", borderRadius:4, padding:3, marginBottom:20 }}>
           {["login","register"].map(m=>(
@@ -169,6 +169,16 @@ export default function App() {
   const [comments, setComments] = useState([]);
   const [commentText, setCommentText] = useState("");
   const [commentLoading, setCommentLoading] = useState(false);
+  const [copiedId, setCopiedId] = useState(null);
+
+  const handleShare = (e, postId) => {
+    e.stopPropagation();
+    const url = `${window.location.origin}/post/${postId}`;
+    navigator.clipboard?.writeText(url).then(() => {
+      setCopiedId(postId);
+      setTimeout(() => setCopiedId(null), 2000);
+    });
+  };
 
   const fetchPosts = useCallback(async () => {
     const { data } = await supabase.from("posts").select("*").order("created_at", { ascending: false });
@@ -231,14 +241,14 @@ export default function App() {
     return b.votes-a.votes;
   });
 
-  if (!loaded) return <div style={{ padding:60, textAlign:"center", fontFamily:"Georgia,serif", color:"#7a7570" }}>Loading AIArchMatch Community...</div>;
+  if (!loaded) return <div style={{ padding:60, textAlign:"center", fontFamily:"Georgia,serif", color:"#7a7570" }}>Loading Claude AI Community...</div>;
 
   return (
     <div style={s.wrap}>
       <div style={s.nav}>
         <div style={s.logo} onClick={()=>{setActiveChannel(null);setActivePost(null);}}>
-          AIArch<span style={{ color:"#c8692a" }}>Match</span>
-          <span style={{ fontSize:12, fontWeight:400, color:"#aaa", marginLeft:6 }}>Community</span>
+          Claude AI<span style={{ color:"#c8692a" }}>Community</span>
+          
         </div>
         <div style={{ display:"flex", alignItems:"center", gap:10 }}>
           {currentUser ? <>
@@ -265,7 +275,7 @@ export default function App() {
           </div>
           <div style={{ background:"white", border:"1px solid #e8e2d8", borderRadius:6, padding:14 }}>
             <div style={{ fontSize:12, fontWeight:600, color:"#0f0e0d", marginBottom:8, fontFamily:"Georgia,serif" }}>About</div>
-            <div style={{ fontSize:12, color:"#7a7570", lineHeight:1.6, marginBottom:12 }}>The community for AI automation builders. Share what you build, learn from others, find work.</div>
+            <div style={{ fontSize:12, color:"#7a7570", lineHeight:1.6, marginBottom:12 }}>The home for AI automation builders. Share what you build, learn from others, find work. Free to join.</div>
             <div style={{ fontSize:12, color:"#aaa", display:"flex", flexDirection:"column", gap:4, marginBottom:14 }}>
               <div>🤖 All AI tools welcome</div>
               <div>🔒 No real names needed</div>
@@ -295,7 +305,7 @@ export default function App() {
                 </div>
               </div>
 
-              <div style={{ fontSize:13, fontWeight:600, color:"#0f0e0d", marginBottom:10 }}>{comments.length} Comment{comments.length!==1?"s":""}</div>
+              <div style={{ display:"flex", alignItems:"center", justifyContent:"space-between", marginBottom:10 }}><div style={{ fontSize:13, fontWeight:600, color:"#0f0e0d" }}>{comments.length} Comment{comments.length!==1?"s":""}</div><button onClick={e=>handleShare(e,activePost.id)} style={{ background:"none", border:"1px solid #e8e2d8", borderRadius:3, padding:"5px 12px", fontSize:12, cursor:"pointer", color:copiedId===activePost.id?"#1e7a47":"#7a7570", display:"flex", alignItems:"center", gap:5 }}>{copiedId===activePost.id ? "✓ Copied!" : "🔗 Share post"}</button></div>
 
               {currentUser ? (
                 <div style={{ ...s.card, padding:14, marginBottom:16 }}>
@@ -352,7 +362,7 @@ export default function App() {
                     </div>
                     <div style={{ fontFamily:"Georgia,serif", fontSize:15, fontWeight:700, color:"#0f0e0d", marginBottom:6, lineHeight:1.3 }}>{p.title}</div>
                     <div style={{ fontSize:13, color:"#7a7570", lineHeight:1.6, display:"-webkit-box", WebkitLineClamp:2, WebkitBoxOrient:"vertical", overflow:"hidden" }}>{p.body}</div>
-                    <div style={{ marginTop:8, fontSize:12, color:"#aaa" }}>💬 {p.comment_count||0} comment{p.comment_count!==1?"s":""}</div>
+                    <div style={{ marginTop:8, display:"flex", gap:12, alignItems:"center" }}><span style={{ fontSize:12, color:"#aaa" }}>💬 {p.comment_count||0} comment{p.comment_count!==1?"s":""}</span><button onClick={e=>handleShare(e,p.id)} style={{ background:"none", border:"none", cursor:"pointer", fontSize:12, color:copiedId===p.id?"#1e7a47":"#aaa", display:"flex", alignItems:"center", gap:4, padding:0 }}>{copiedId===p.id ? "✓ Link copied!" : "🔗 Share"}</button></div>
                   </div>
                 </div>
               ))}
