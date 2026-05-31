@@ -25,8 +25,9 @@ const COLORS = {
 
 function ac(l) { return COLORS[l?.toUpperCase()] || "#888"; }
 
-function getAvatarUrl(username) {
-  return `https://api.dicebear.com/7.x/bottts/svg?seed=${encodeURIComponent(username)}&scale=80`;
+function getAvatarUrl(username, seed) {
+  const s = seed || username?.toLowerCase() || "default";
+  return `https://api.dicebear.com/7.x/bottts-neutral/svg?seed=${encodeURIComponent(s)}&backgroundColor=f5f0e8`;
 }
 
 function getPrefix(user) {
@@ -53,16 +54,16 @@ const s = {
   btnOut: { background:"none", border:"1px solid #e8e2d8", borderRadius:3, padding:"6px 14px", fontSize:13, cursor:"pointer", color:"#7a7570" },
 };
 
-function Avatar({ letter, username, size=32 }) {
+function Avatar({ letter, username, seed, size=32 }) {
   const [imgError, setImgError] = React.useState(false);
   if (username && !imgError) {
     return (
       <img
-        src={`https://api.dicebear.com/7.x/bottts/svg?seed=${encodeURIComponent(username)}`}
+        src={getAvatarUrl(username, seed)}
         alt={username}
         width={size}
         height={size}
-        style={{ width:size, height:size, borderRadius:"50%", flexShrink:0, background:"#f5f0e8", display:"block" }}
+        style={{ width:size, height:size, borderRadius:"50%", flexShrink:0, background:"#f5f0e8", display:"block", objectFit:"cover" }}
         onError={() => setImgError(true)}
       />
     );
@@ -205,6 +206,8 @@ export function App() {
   const [commentLoading, setCommentLoading] = useState(false);
   const [copiedId, setCopiedId] = useState(null);
   const [showDropdown, setShowDropdown] = useState(false);
+  const [showAvatarPicker, setShowAvatarPicker] = useState(false);
+  const [avatarSeedInput, setAvatarSeedInput] = useState("");
 
   const handleShare = (e, postId) => {
     e.stopPropagation();
@@ -307,7 +310,7 @@ export function App() {
         </div>
         <div style={{ display:"flex", alignItems:"center", gap:10 }}>
           {currentUser ? <>
-            <Avatar letter={currentUser.avatar_letter||currentUser.username[0]} size={28} />
+            <Avatar username={currentUser.username} seed={currentUser.avatar_seed} letter={currentUser.avatar_letter||currentUser.username[0]} size={28} />
             <span style={{ fontSize:12, color:"#7a7570" }}>{getPrefix(currentUser)}/{currentUser.username}</span>
             <button style={s.btn} onClick={()=>setShowNew(true)}>+ Post</button>
             <button style={s.btnOut} onClick={async()=>{await supabase.auth.signOut();setCurrentUser(null);}}>Sign Out</button>
@@ -350,7 +353,7 @@ export function App() {
                   <div style={{ flex:1 }}>
                     <div style={{ display:"flex", alignItems:"center", gap:8, marginBottom:10, flexWrap:"wrap" }}>
                       <span style={{ fontSize:11, background:"#f5f0e8", border:"1px solid #e8e2d8", borderRadius:100, padding:"2px 8px", color:"#7a7570" }}>{CHANNELS.find(c=>c.id===activePost.channel)?.icon} {CHANNELS.find(c=>c.id===activePost.channel)?.label}</span>
-                      <Avatar letter={activePost.author_username?.[0]} size={22} />
+                      <Avatar username={activePost.author_username} letter={activePost.author_username?.[0]} size={22} />
                       <span style={{ fontSize:12, color:"#7a7570" }}>u/{activePost.author_username}</span>
                       <span style={{ fontSize:12, color:"#aaa" }}>· {timeAgo(activePost.created_at)}</span>
                     </div>
@@ -411,7 +414,7 @@ export function App() {
                   <div style={{ flex:1, minWidth:0 }}>
                     <div style={{ display:"flex", alignItems:"center", gap:8, marginBottom:6, flexWrap:"wrap" }}>
                       {!activeChannel && <span style={{ fontSize:11, fontWeight:500, background:"#f5f0e8", border:"1px solid #e8e2d8", borderRadius:100, padding:"2px 8px", color:"#7a7570" }}>{CHANNELS.find(c=>c.id===p.channel)?.icon} {CHANNELS.find(c=>c.id===p.channel)?.label}</span>}
-                      <Avatar username={p.author_username} letter={p.author_username?.[0]} size={20} />
+                      <Avatar username={p.author_username} letter={p.author_username?.[0]} size={28} />
                       <span style={{ fontSize:12, color:"#7a7570" }}>u/{p.author_username}</span>
                       <span style={{ fontSize:12, color:"#aaa" }}>· {timeAgo(p.created_at)}</span>
                     </div>
@@ -436,6 +439,43 @@ export function App() {
         </div>
       </div>
 
+      {showAvatarPicker && (
+        <div style={{ position:"fixed", inset:0, background:"rgba(15,14,13,0.55)", display:"flex", alignItems:"center", justifyContent:"center", zIndex:1000, padding:20 }} onClick={()=>setShowAvatarPicker(false)}>
+          <div style={{ background:"white", borderRadius:8, padding:28, width:"100%", maxWidth:440, boxShadow:"0 20px 60px rgba(0,0,0,0.15)" }} onClick={e=>e.stopPropagation()}>
+            <div style={{ display:"flex", justifyContent:"space-between", alignItems:"center", marginBottom:20 }}>
+              <div style={{ fontFamily:"Georgia,serif", fontSize:18, fontWeight:700 }}>Change Your Avatar</div>
+              <button onClick={()=>setShowAvatarPicker(false)} style={{ background:"none", border:"none", cursor:"pointer", fontSize:20, color:"#aaa" }}>×</button>
+            </div>
+            <div style={{ fontSize:13, color:"#7a7570", marginBottom:16, lineHeight:1.6 }}>
+              Type any word to generate a unique robot. Try your nickname, a hobby, anything you like.
+            </div>
+            <div style={{ display:"flex", gap:12, alignItems:"center", marginBottom:20 }}>
+              <img src={getAvatarUrl(null, avatarSeedInput||currentUser.username)} alt="preview" width={64} height={64} style={{ borderRadius:"50%", background:"#f5f0e8", flexShrink:0 }} />
+              <div style={{ flex:1 }}>
+                <div style={{ fontSize:12, fontWeight:500, color:"#7a7570", marginBottom:6 }}>Seed word</div>
+                <input
+                  value={avatarSeedInput}
+                  onChange={e=>setAvatarSeedInput(e.target.value.toLowerCase())}
+                  placeholder="e.g. starship, moonwalker, robot42"
+                  style={{ width:"100%", border:"1px solid #e8e2d8", borderRadius:4, padding:"10px 12px", fontFamily:"inherit", fontSize:13, color:"#0f0e0d", background:"#faf8f4", outline:"none", boxSizing:"border-box" }}
+                  onFocus={e=>e.target.style.borderColor="#c8692a"}
+                  onBlur={e=>e.target.style.borderColor="#e8e2d8"}
+                />
+                <div style={{ fontSize:11, color:"#aaa", marginTop:4 }}>Preview updates as you type</div>
+              </div>
+            </div>
+            <div style={{ display:"flex", gap:10, justifyContent:"flex-end" }}>
+              <button onClick={()=>setShowAvatarPicker(false)} style={{ background:"none", border:"1px solid #e8e2d8", borderRadius:3, padding:"8px 18px", fontSize:13, cursor:"pointer", color:"#7a7570" }}>Cancel</button>
+              <button onClick={async()=>{
+                const seed = avatarSeedInput.trim() || currentUser.username;
+                await supabase.from("users").update({ avatar_seed: seed }).eq("id", currentUser.id);
+                setCurrentUser(u => ({ ...u, avatar_seed: seed }));
+                setShowAvatarPicker(false);
+              }} style={{ background:"#c8692a", color:"white", border:"none", borderRadius:3, padding:"8px 20px", fontSize:13, fontWeight:500, cursor:"pointer" }}>Save Avatar</button>
+            </div>
+          </div>
+        </div>
+      )}
       {showNew && <NewPostModal channels={CHANNELS} currentUser={currentUser} onSubmit={handleNewPost} onClose={()=>setShowNew(false)} />}
       {showAuth && <AuthModal onClose={()=>setShowAuth(false)} onLogin={user=>{setCurrentUser(user);setShowAuth(false);}} />}
     </div>
@@ -536,7 +576,7 @@ export function PostPage({ currentUser: propUser, onAuthRequired, onVote, copied
         </div>
         <div style={{ display:"flex", alignItems:"center", gap:10 }}>
           {currentUser ? <>
-            <Avatar username={currentUser.username} letter={currentUser.avatar_letter||currentUser.username?.[0]} size={28} />
+            <Avatar username={currentUser.username} seed={currentUser.avatar_seed} letter={currentUser.avatar_letter||currentUser.username?.[0]} size={28} />
             <span style={{ fontSize:12, color:"#7a7570" }}>{getPrefix(currentUser)}/{currentUser.username}</span>
           </> : <>
             <button onClick={onAuthRequired} style={{ background:"none", border:"1px solid #e8e2d8", borderRadius:3, padding:"6px 14px", fontSize:13, cursor:"pointer", color:"#7a7570" }}>Sign In</button>
