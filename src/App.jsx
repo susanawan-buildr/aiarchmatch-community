@@ -295,7 +295,7 @@ export function App() {
         <div style={{ display:"flex", alignItems:"center", gap:10 }}>
           {currentUser ? <>
             <Avatar letter={currentUser.avatar_letter||currentUser.username[0]} size={28} />
-            <span style={{ fontSize:12, color:"#7a7570" }}>u/{currentUser.username}</span>
+            <span style={{ fontSize:12, color:"#7a7570" }}>{getPrefix(currentUser)}/{currentUser.username}</span>
             <button style={s.btn} onClick={()=>setShowNew(true)}>+ Post</button>
             <button style={s.btnOut} onClick={async()=>{await supabase.auth.signOut();setCurrentUser(null);}}>Sign Out</button>
           </> : <>
@@ -351,7 +351,7 @@ export function App() {
 
               {currentUser ? (
                 <div style={{ ...s.card, padding:14, marginBottom:16 }}>
-                  <div style={{ fontSize:12, color:"#aaa", marginBottom:8 }}>Commenting as u/{currentUser.username}</div>
+                  <div style={{ fontSize:12, color:"#aaa", marginBottom:8 }}>Commenting as {getPrefix(currentUser)}/{currentUser.username}</div>
                   <textarea value={commentText} onChange={e=>setCommentText(e.target.value)} placeholder="What are your thoughts?" style={{ width:"100%", minHeight:80, border:"1px solid #e8e2d8", borderRadius:4, padding:"10px 12px", fontFamily:"inherit", fontSize:13, resize:"vertical", color:"#0f0e0d", background:"#faf8f4", outline:"none", boxSizing:"border-box" }} onFocus={e=>e.target.style.borderColor="#c8692a"} onBlur={e=>e.target.style.borderColor="#e8e2d8"} />
                   <div style={{ marginTop:8, display:"flex", justifyContent:"flex-end" }}>
                     <button onClick={handleComment} disabled={!commentText.trim()||commentLoading} style={{ background:commentText.trim()?"#c8692a":"#e8e2d8", color:commentText.trim()?"white":"#aaa", border:"none", borderRadius:3, padding:"7px 18px", fontSize:13, fontWeight:500, cursor:commentText.trim()?"pointer":"default" }}>{commentLoading?"Posting...":"Post Comment"}</button>
@@ -524,7 +524,7 @@ export function PostPage({ currentUser: propUser, onAuthRequired, onVote, copied
         <div style={{ display:"flex", alignItems:"center", gap:10 }}>
           {currentUser ? <>
             <Avatar username={currentUser.username} letter={currentUser.avatar_letter||currentUser.username?.[0]} size={28} />
-            <span style={{ fontSize:12, color:"#7a7570" }}>u/{currentUser.username}</span>
+            <span style={{ fontSize:12, color:"#7a7570" }}>{getPrefix(currentUser)}/{currentUser.username}</span>
           </> : <>
             <button onClick={onAuthRequired} style={{ background:"none", border:"1px solid #e8e2d8", borderRadius:3, padding:"6px 14px", fontSize:13, cursor:"pointer", color:"#7a7570" }}>Sign In</button>
             <button onClick={onAuthRequired} style={{ background:"#c8692a", color:"white", border:"none", borderRadius:3, padding:"7px 16px", fontSize:13, fontWeight:500, cursor:"pointer" }}>Join Free</button>
@@ -576,7 +576,7 @@ export function PostPage({ currentUser: propUser, onAuthRequired, onVote, copied
 
           {currentUser ? (
             <div style={{ background: "white", border: "1px solid #e8e2d8", borderRadius: 6, padding: 14, marginBottom: 16 }}>
-              <div style={{ fontSize: 12, color: "#aaa", marginBottom: 8 }}>Commenting as u/{currentUser.username}</div>
+              <div style={{ fontSize: 12, color: "#aaa", marginBottom: 8 }}>Commenting as {getPrefix(currentUser)}/{currentUser.username}</div>
               <textarea value={commentText} onChange={e => setCommentText(e.target.value)} placeholder="What are your thoughts?" style={{ width: "100%", minHeight: 80, border: "1px solid #e8e2d8", borderRadius: 4, padding: "10px 12px", fontFamily: "inherit", fontSize: 13, resize: "vertical", color: "#0f0e0d", background: "#faf8f4", outline: "none", boxSizing: "border-box" }} onFocus={e => e.target.style.borderColor = "#c8692a"} onBlur={e => e.target.style.borderColor = "#e8e2d8"} />
               <div style={{ marginTop: 8, display: "flex", justifyContent: "flex-end" }}>
                 <button onClick={submitComment} disabled={!commentText.trim() || commentLoading} style={{ background: commentText.trim() ? "#c8692a" : "#e8e2d8", color: commentText.trim() ? "white" : "#aaa", border: "none", borderRadius: 3, padding: "7px 18px", fontSize: 13, fontWeight: 500, cursor: commentText.trim() ? "pointer" : "default" }}>{commentLoading ? "Posting..." : "Post Comment"}</button>
