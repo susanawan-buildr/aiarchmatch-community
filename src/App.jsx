@@ -25,6 +25,14 @@ const COLORS = {
 
 function ac(l) { return COLORS[l?.toUpperCase()] || "#888"; }
 
+function getAvatarUrl(username) {
+  return `https://api.dicebear.com/7.x/bottts/svg?seed=${encodeURIComponent(username)}&scale=80`;
+}
+
+function getPrefix(user) {
+  return user?.is_admin === true ? "m" : "u";
+}
+
 function timeAgo(ts) {
   const d = (Date.now() - new Date(ts).getTime()) / 1000;
   if (d < 60) return "just now";
@@ -183,6 +191,7 @@ export function App() {
   const [commentText, setCommentText] = useState("");
   const [commentLoading, setCommentLoading] = useState(false);
   const [copiedId, setCopiedId] = useState(null);
+  const [showDropdown, setShowDropdown] = useState(false);
 
   const handleShare = (e, postId) => {
     e.stopPropagation();
@@ -358,7 +367,7 @@ export function App() {
               {comments.map(c=>(
                 <div key={c.id} style={{ ...s.card, padding:"12px 14px", marginBottom:8 }}>
                   <div style={{ display:"flex", alignItems:"center", gap:8, marginBottom:6 }}>
-                    <Avatar letter={c.author_username?.[0]} size={24} />
+                    <Avatar username={c.author_username} letter={c.author_username?.[0]} size={24} />
                     <span style={{ fontSize:12, fontWeight:500, color:"#0f0e0d" }}>u/{c.author_username}</span>
                     <span style={{ fontSize:12, color:"#aaa" }}>· {timeAgo(c.created_at)}</span>
                   </div>
@@ -389,7 +398,7 @@ export function App() {
                   <div style={{ flex:1, minWidth:0 }}>
                     <div style={{ display:"flex", alignItems:"center", gap:8, marginBottom:6, flexWrap:"wrap" }}>
                       {!activeChannel && <span style={{ fontSize:11, fontWeight:500, background:"#f5f0e8", border:"1px solid #e8e2d8", borderRadius:100, padding:"2px 8px", color:"#7a7570" }}>{CHANNELS.find(c=>c.id===p.channel)?.icon} {CHANNELS.find(c=>c.id===p.channel)?.label}</span>}
-                      <Avatar letter={p.author_username?.[0]} size={20} />
+                      <Avatar username={p.author_username} letter={p.author_username?.[0]} size={20} />
                       <span style={{ fontSize:12, color:"#7a7570" }}>u/{p.author_username}</span>
                       <span style={{ fontSize:12, color:"#aaa" }}>· {timeAgo(p.created_at)}</span>
                     </div>
@@ -514,7 +523,7 @@ export function PostPage({ currentUser: propUser, onAuthRequired, onVote, copied
         </div>
         <div style={{ display:"flex", alignItems:"center", gap:10 }}>
           {currentUser ? <>
-            <Avatar letter={currentUser.avatar_letter||currentUser.username?.[0]} size={28} />
+            <Avatar username={currentUser.username} letter={currentUser.avatar_letter||currentUser.username?.[0]} size={28} />
             <span style={{ fontSize:12, color:"#7a7570" }}>u/{currentUser.username}</span>
           </> : <>
             <button onClick={onAuthRequired} style={{ background:"none", border:"1px solid #e8e2d8", borderRadius:3, padding:"6px 14px", fontSize:13, cursor:"pointer", color:"#7a7570" }}>Sign In</button>
@@ -552,7 +561,7 @@ export function PostPage({ currentUser: propUser, onAuthRequired, onVote, copied
           <div style={{ background: "white", border: "1px solid #e8e2d8", borderRadius: 6, padding: "20px 20px 16px", marginBottom: 20 }}>
             <div style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: 10, flexWrap: "wrap" }}>
               <span style={{ fontSize: 11, background: "#f5f0e8", border: "1px solid #e8e2d8", borderRadius: 100, padding: "2px 8px", color: "#7a7570" }}>{ch?.icon} {ch?.label}</span>
-              <Avatar letter={post.author_username?.[0]} size={22} />
+              <Avatar username={post.author_username} letter={post.author_username?.[0]} size={22} />
               <span style={{ fontSize: 12, color: "#7a7570" }}>u/{post.author_username}</span>
               <span style={{ fontSize: 12, color: "#aaa" }}>· {timeAgo(post.created_at)}</span>
               <button onClick={e => handleShare(e, post.id)} style={{ marginLeft: "auto", background: "none", border: "1px solid #e8e2d8", borderRadius: 3, padding: "4px 10px", fontSize: 12, cursor: "pointer", color: copiedId === post.id ? "#1e7a47" : "#7a7570" }}>
@@ -583,7 +592,7 @@ export function PostPage({ currentUser: propUser, onAuthRequired, onVote, copied
           {comments.map(c => (
             <div key={c.id} style={{ background: "white", border: "1px solid #e8e2d8", borderRadius: 6, padding: "12px 14px", marginBottom: 8 }}>
               <div style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: 6 }}>
-                <Avatar letter={c.author_username?.[0]} size={24} />
+                <Avatar username={c.author_username} letter={c.author_username?.[0]} size={24} />
                 <span style={{ fontSize: 12, fontWeight: 500, color: "#0f0e0d" }}>u/{c.author_username}</span>
                 <span style={{ fontSize: 12, color: "#aaa" }}>· {timeAgo(c.created_at)}</span>
               </div>
