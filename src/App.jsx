@@ -315,7 +315,7 @@ function NewPostModal({ channels, currentUser, onSubmit, onClose }) {
   const [imagePreview, setImagePreview] = useState(null);
   const [imageError, setImageError] = useState("");
   const [loading, setLoading] = useState(false);
-  const fileInputId = `file-input-${Math.random().toString(36).substr(2,9)}`;
+  const fileInputId = "post-image-upload";
 
   const handleImage = (e) => {
     const file = e.target.files[0];
@@ -391,11 +391,11 @@ function NewPostModal({ channels, currentUser, onSubmit, onClose }) {
               <button onClick={removeImage} style={{ position:"absolute", top:6, right:6, background:"rgba(15,14,13,0.7)", color:"white", border:"none", borderRadius:"50%", width:24, height:24, cursor:"pointer", fontSize:14, display:"flex", alignItems:"center", justifyContent:"center" }}>×</button>
             </div>
           ) : (
-            <div onClick={()=>document.getElementById(fileInputId)?.click()} style={{ border:"2px dashed #e8e2d8", borderRadius:4, padding:"20px", textAlign:"center", cursor:"pointer", transition:"border-color 0.15s" }} onMouseEnter={e=>e.currentTarget.style.borderColor="#c8692a"} onMouseLeave={e=>e.currentTarget.style.borderColor="#e8e2d8"}>
+            <label htmlFor={fileInputId} style={{ border:"2px dashed #e8e2d8", borderRadius:4, padding:"20px", textAlign:"center", cursor:"pointer", transition:"border-color 0.15s", display:"block" }} onMouseEnter={e=>e.currentTarget.style.borderColor="#c8692a"} onMouseLeave={e=>e.currentTarget.style.borderColor="#e8e2d8"}>
               <div style={{ fontSize:24, marginBottom:6 }}>📎</div>
               <div style={{ fontSize:13, color:"#7a7570" }}>Click to attach an image</div>
               <div style={{ fontSize:11, color:"#aaa", marginTop:4 }}>PNG, JPG, GIF up to 4MB</div>
-            </div>
+            </label>
           )}
           {imageError && <div style={{ fontSize:12, color:"#c0392b", marginTop:6 }}>{imageError}</div>}
           <input id={fileInputId} type="file" accept="image/*" onChange={handleImage} style={{ display:"none" }} />
