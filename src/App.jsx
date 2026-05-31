@@ -518,7 +518,7 @@ export function App({ currentUser, setCurrentUser, showAuth, setShowAuth, copied
                 <div style={{ marginTop:8, display:"flex", gap:12, alignItems:"center" }} onClick={e=>e.stopPropagation()}>
                   <span style={{ fontSize:12, color:"#aaa" }}>💬 {p.comment_count||0} comment{p.comment_count!==1?"s":""}</span>
                   <button onClick={e=>handleShare(e,p.id)} style={{ background:"none", border:"none", cursor:"pointer", fontSize:12, color:copiedId===p.id?"#1e7a47":"#aaa", padding:0 }}>{copiedId===p.id ? "✓ Copied!" : <><ShareIcon size={12} />{" Share"}</>}</button>
-                  <button onClick={e=>{e.stopPropagation();if(!currentUser){setShowAuth(true);return;}setReportTarget({postId:p.id});}} style={{ background:"none", border:"none", cursor:"pointer", fontSize:12, color:"#aaa", padding:0 }}>🚩 Report</button>
+
                   {currentUser?.is_admin===true && <button onClick={e=>handleDeletePost(e,p.id,p.image_url)} style={{ background:"none", border:"none", cursor:"pointer", fontSize:12, color:"#c0392b", padding:0 }}>🗑️ Delete</button>}
                 </div>
               </div>
@@ -671,13 +671,17 @@ export function PostPage({ currentUser: propUser, onAuthRequired, copiedId, hand
               {currentUser?.is_admin===true && (
                 <button onClick={async(e)=>{ e.stopPropagation(); if(!window.confirm("Delete this post?")) return; if(post.image_url){const fn=post.image_url.split("/").pop();await supabase.storage.from("post-images").remove([fn]);} await supabase.from("votes").delete().eq("post_id",post.id); await supabase.from("comments").delete().eq("post_id",post.id); await supabase.from("posts").delete().eq("id",post.id); navigate("/"); }} style={{ background:"none", border:"1px solid #c0392b", borderRadius:3, padding:"4px 10px", fontSize:12, cursor:"pointer", color:"#c0392b" }}>🗑️ Delete post</button>
               )}
+              {!currentUser?.is_admin && currentUser && (
+                <button onClick={()=>setReportTarget({postId:post.id})} style={{ background:"none", border:"1px solid #e8e2d8", borderRadius:3, padding:"4px 10px", fontSize:12, cursor:"pointer", color:"#aaa" }}>🚩 Report</button>
+              )}
+              {!currentUser && (
+                <button onClick={onAuthRequired} style={{ background:"none", border:"1px solid #e8e2d8", borderRadius:3, padding:"4px 10px", fontSize:12, cursor:"pointer", color:"#aaa" }}>🚩 Report</button>
+              )}
             </div>
             <div style={{ fontFamily:"Georgia,serif", fontSize:20, fontWeight:700, color:"#0f0e0d", marginBottom:14, lineHeight:1.3 }}>{post.title}</div>
             <div style={{ fontSize:15, color:"#3a3835", lineHeight:1.8 }}>{post.body}</div>
             {post.image_url && <img src={post.image_url} alt="post" style={{ marginTop:16, maxWidth:"100%", borderRadius:6, border:"1px solid #e8e2d8", display:"block" }} />}
-            <div style={{ marginTop:12, display:"flex", gap:12 }}>
-              {!currentUser?.is_admin && <button onClick={()=>{if(!currentUser){onAuthRequired();return;}setReportTarget({postId:post.id});}} style={{ background:"none", border:"none", cursor:"pointer", fontSize:12, color:"#aaa", padding:0 }}>🚩 Report post</button>}
-            </div>
+
           </div>
 
           <div style={{ fontSize:13, fontWeight:600, color:"#0f0e0d", marginBottom:10 }}>{comments.length} Comment{comments.length!==1?"s":""}</div>
@@ -718,8 +722,15 @@ export function PostPage({ currentUser: propUser, onAuthRequired, copiedId, hand
               <div style={{ fontSize:13, color:"#3a3835", lineHeight:1.65, paddingLeft:32 }}>{c.body}</div>
               {c.image_url && <img src={c.image_url} alt="comment" style={{ marginTop:8, marginLeft:32, maxWidth:"calc(100% - 32px)", maxHeight:300, borderRadius:4, border:"1px solid #e8e2d8", display:"block" }} />}
               <div style={{ paddingLeft:32, marginTop:6, display:"flex", gap:12 }}>
-                {!currentUser?.is_admin && currentUser && <button onClick={()=>setReportTarget({commentId:c.id})} style={{ background:"none", border:"none", cursor:"pointer", fontSize:11, color:"#aaa", padding:0 }}>🚩 Report</button>}
-                {currentUser?.is_admin===true && <button onClick={async()=>{ if(!window.confirm("Delete this comment?")) return; await supabase.from("comments").delete().eq("id",c.id); setComments(cs=>cs.filter(x=>x.id!==c.id)); }} style={{ background:"none", border:"none", cursor:"pointer", fontSize:11, color:"#c0392b", padding:0 }}>🗑️ Delete comment</button>}
+                {currentUser && !currentUser?.is_admin && (
+                  <button onClick={()=>setReportTarget({commentId:c.id})} style={{ background:"none", border:"none", cursor:"pointer", fontSize:11, color:"#aaa", padding:0 }}>🚩 Report comment</button>
+                )}
+                {!currentUser && (
+                  <button onClick={onAuthRequired} style={{ background:"none", border:"none", cursor:"pointer", fontSize:11, color:"#aaa", padding:0 }}>🚩 Report comment</button>
+                )}
+                {currentUser?.is_admin===true && (
+                  <button onClick={async()=>{ if(!window.confirm("Delete this comment?")) return; await supabase.from("comments").delete().eq("id",c.id); setComments(cs=>cs.filter(x=>x.id!==c.id)); }} style={{ background:"none", border:"none", cursor:"pointer", fontSize:11, color:"#c0392b", padding:0 }}>🗑️ Delete comment</button>
+                )}
               </div>
             </div>
           ))}
