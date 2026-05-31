@@ -534,6 +534,7 @@ export function PostPage({ currentUser: propUser, onAuthRequired, onVote, copied
   const [loading, setLoading] = useState(true);
   const [commentLoading, setCommentLoading] = useState(false);
   const [currentUser, setCurrentUser] = useState(propUser);
+  const [showPageDropdown, setShowPageDropdown] = useState(false);
 
   useEffect(() => {
     setCurrentUser(propUser);
@@ -583,8 +584,31 @@ export function PostPage({ currentUser: propUser, onAuthRequired, onVote, copied
         </div>
         <div style={{ display:"flex", alignItems:"center", gap:10 }}>
           {currentUser ? <>
-            <Avatar username={currentUser.username} seed={currentUser.avatar_seed} letter={currentUser.avatar_letter||currentUser.username?.[0]} size={28} />
-            <span style={{ fontSize:12, color:"#7a7570" }}>{getPrefix(currentUser)}/{currentUser.username}</span>
+            <div style={{ position:"relative" }}>
+              <div onClick={()=>setShowPageDropdown(d=>!d)} style={{ display:"flex", alignItems:"center", gap:8, cursor:"pointer", padding:"4px 8px", borderRadius:4, border:"1px solid #e8e2d8", background:"white" }}>
+                <Avatar username={currentUser.username} seed={currentUser.avatar_seed} letter={currentUser.avatar_letter||currentUser.username?.[0]} size={28} />
+                <span style={{ fontSize:12, color:"#7a7570" }}>{getPrefix(currentUser)}/{currentUser.username}</span>
+                <span style={{ fontSize:10, color:"#aaa" }}>▼</span>
+              </div>
+              {showPageDropdown && (
+                <div style={{ position:"absolute", top:"calc(100% + 6px)", right:0, background:"white", border:"1px solid #e8e2d8", borderRadius:6, boxShadow:"0 8px 24px rgba(0,0,0,0.1)", minWidth:180, zIndex:200 }}>
+                  <div style={{ padding:"12px 14px", borderBottom:"1px solid #e8e2d8" }}>
+                    <div style={{ fontSize:13, fontWeight:600, color:"#0f0e0d" }}>{getPrefix(currentUser)}/{currentUser.username}</div>
+                    <div style={{ fontSize:11, color:currentUser.is_admin?"#c8692a":"#aaa", marginTop:2, fontWeight:currentUser.is_admin?500:400 }}>{currentUser.is_admin ? "⚡ Moderator" : "Member"}</div>
+                  </div>
+                  <div onClick={()=>navigate("/")} style={{ padding:"10px 14px", fontSize:13, cursor:"pointer", color:"#0f0e0d", display:"flex", alignItems:"center", gap:8 }}
+                    onMouseEnter={e=>e.currentTarget.style.background="#faf8f4"}
+                    onMouseLeave={e=>e.currentTarget.style.background="white"}>
+                    🏠 All Posts
+                  </div>
+                  <div onClick={async()=>{ await supabase.auth.signOut(); window.location.href="/"; }} style={{ padding:"10px 14px", fontSize:13, cursor:"pointer", color:"#c0392b", display:"flex", alignItems:"center", gap:8, borderTop:"1px solid #e8e2d8" }}
+                    onMouseEnter={e=>e.currentTarget.style.background="#fdf0f0"}
+                    onMouseLeave={e=>e.currentTarget.style.background="white"}>
+                    🚪 Sign Out
+                  </div>
+                </div>
+              )}
+            </div>
           </> : <>
             <button onClick={onAuthRequired} style={{ background:"none", border:"1px solid #e8e2d8", borderRadius:3, padding:"6px 14px", fontSize:13, cursor:"pointer", color:"#7a7570" }}>Sign In</button>
             <button onClick={onAuthRequired} style={{ background:"#c8692a", color:"white", border:"none", borderRadius:3, padding:"7px 16px", fontSize:13, fontWeight:500, cursor:"pointer" }}>Join Free</button>
