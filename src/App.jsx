@@ -333,29 +333,15 @@ export function App() {
           </div>
           <div style={{ background:"white", border:"1px solid #e8e2d8", borderRadius:6, padding:14 }}>
             <div style={{ fontSize:12, fontWeight:600, color:"#0f0e0d", marginBottom:8, fontFamily:"Georgia,serif" }}>About</div>
-            <div style={{ fontSize:12, color:"#7a7570", lineHeight:1.7, marginBottom:10 }}>
-              For developers, entrepreneurs, creators and AI enthusiasts who want to explore, learn and grow with Claude and other AI tools.
+            <div style={{ fontSize:13, fontWeight:600, color:"#c8692a", marginBottom:6, fontFamily:"Georgia,serif", fontStyle:"italic" }}>Learn it. Build it. Automate it.</div>
+            <div style={{ fontSize:12, color:"#7a7570", lineHeight:1.7, marginBottom:12 }}>The home for developers, entrepreneurs and creators who want to do more with Claude and AI. Beginners and experts welcome.</div>
+            <div style={{ fontSize:11, color:"#7a7570", display:"flex", flexDirection:"column", gap:4, marginBottom:12 }}>
+              <div>✦ Prompts that actually work</div>
+              <div>✦ Real workflows and automations</div>
+              <div>✦ Tools, tips and AI news</div>
+              <div>✦ Jobs and collaboration</div>
             </div>
-            <div style={{ fontSize:11, fontWeight:600, color:"#0f0e0d", marginBottom:4 }}>We focus on</div>
-            <div style={{ fontSize:11, color:"#7a7570", display:"flex", flexDirection:"column", gap:3, marginBottom:10 }}>
-              <div>✦ Prompt engineering and real use cases</div>
-              <div>✦ AI-powered business automation</div>
-              <div>✦ Content, coding and productivity</div>
-              <div>✦ Tips, updates and best practices</div>
-              <div>✦ Problem-solving and collaboration</div>
-            </div>
-            <div style={{ fontSize:11, fontWeight:600, color:"#0f0e0d", marginBottom:4 }}>You will</div>
-            <div style={{ fontSize:11, color:"#7a7570", display:"flex", flexDirection:"column", gap:3, marginBottom:10 }}>
-              <div>✦ Master AI tools faster</div>
-              <div>✦ Build smarter workflows</div>
-              <div>✦ Scale your business with AI</div>
-              <div>✦ Stay ahead in the AI revolution</div>
-            </div>
-            <div style={{ fontSize:11, fontWeight:600, color:"#c8692a", marginBottom:4 }}>Our mission</div>
-            <div style={{ fontSize:11, color:"#7a7570", lineHeight:1.6, marginBottom:12 }}>
-              A supportive, high-value community where people learn, share and innovate with AI — beginners and experts alike.
-            </div>
-            <div style={{ fontSize:11, color:"#aaa", paddingTop:8, borderTop:"1px solid #e8e2d8" }}>🌍 Global community · Free to join</div>
+            <div style={{ fontSize:11, color:"#aaa", paddingTop:8, borderTop:"1px solid #e8e2d8" }}>🌍 Global · Free to join</div>
             <button style={{ display:"block", width:"100%", background:"#c8692a", color:"white", border:"none", borderRadius:3, padding:8, fontSize:12, fontWeight:500, cursor:"pointer" }} onClick={()=>currentUser?setShowNew(true):setShowAuth(true)}>Create Post</button>
           </div>
         </div>
@@ -647,80 +633,15 @@ export function PostPage({ currentUser: propUser, onAuthRequired, onVote, copied
           </div>
           <div style={{ background:"white", border:"1px solid #e8e2d8", borderRadius:6, padding:14 }}>
             <div style={{ fontSize:12, fontWeight:600, color:"#0f0e0d", marginBottom:8, fontFamily:"Georgia,serif" }}>About</div>
-            <div style={{ fontSize:12, color:"#7a7570", lineHeight:1.7, marginBottom:10 }}>
-              For developers, entrepreneurs, creators and AI enthusiasts who want to explore, learn and grow with Claude and other AI tools.
+            <div style={{ fontSize:13, fontWeight:600, color:"#c8692a", marginBottom:6, fontFamily:"Georgia,serif", fontStyle:"italic" }}>Learn it. Build it. Automate it.</div>
+            <div style={{ fontSize:12, color:"#7a7570", lineHeight:1.7, marginBottom:12 }}>The home for developers, entrepreneurs and creators who want to do more with Claude and AI. Beginners and experts welcome.</div>
+            <div style={{ fontSize:11, color:"#7a7570", display:"flex", flexDirection:"column", gap:4, marginBottom:12 }}>
+              <div>✦ Prompts that actually work</div>
+              <div>✦ Real workflows and automations</div>
+              <div>✦ Tools, tips and AI news</div>
+              <div>✦ Jobs and collaboration</div>
             </div>
-            <div style={{ fontSize:11, fontWeight:600, color:"#0f0e0d", marginBottom:4 }}>We focus on</div>
-            <div style={{ fontSize:11, color:"#7a7570", display:"flex", flexDirection:"column", gap:3, marginBottom:10 }}>
-              <div>✦ Prompt engineering and real use cases</div>
-              <div>✦ AI-powered business automation</div>
-              <div>✦ Content, coding and productivity</div>
-              <div>✦ Tips, updates and best practices</div>
-              <div>✦ Problem-solving and collaboration</div>
-            </div>
-            <div style={{ fontSize:11, fontWeight:600, color:"#0f0e0d", marginBottom:4 }}>You will</div>
-            <div style={{ fontSize:11, color:"#7a7570", display:"flex", flexDirection:"column", gap:3, marginBottom:10 }}>
-              <div>✦ Master AI tools faster</div>
-              <div>✦ Build smarter workflows</div>
-              <div>✦ Scale your business with AI</div>
-              <div>✦ Stay ahead in the AI revolution</div>
-            </div>
-            <div style={{ fontSize:11, fontWeight:600, color:"#c8692a", marginBottom:4 }}>Our mission</div>
-            <div style={{ fontSize:11, color:"#7a7570", lineHeight:1.6, marginBottom:12 }}>
-              A supportive, high-value community where people learn, share and innovate with AI — beginners and experts alike.
-            </div>
-            <div style={{ fontSize:11, color:"#aaa", paddingTop:8, borderTop:"1px solid #e8e2d8" }}>🌍 Global community · Free to join</div>
-          </div>
-        </div>
-
-        <div>
-          <button onClick={() => navigate("/")} style={{ background: "none", border: "none", cursor: "pointer", color: "#c8692a", fontSize: 13, fontWeight: 500, padding: "0 0 16px", display: "flex", alignItems: "center", gap: 4 }}>← Back to community</button>
-
-          <div style={{ background: "white", border: "1px solid #e8e2d8", borderRadius: 6, padding: "20px 20px 16px", marginBottom: 20 }}>
-            <div style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: 10, flexWrap: "wrap" }}>
-              <span style={{ fontSize: 11, background: "#f5f0e8", border: "1px solid #e8e2d8", borderRadius: 100, padding: "2px 8px", color: "#7a7570" }}>{ch?.icon} {ch?.label}</span>
-              <Avatar username={post.author_username} letter={post.author_username?.[0]} size={22} />
-              <span style={{ fontSize: 12, color: "#7a7570" }}>u/{post.author_username}</span>
-              <span style={{ fontSize: 12, color: "#aaa" }}>· {timeAgo(post.created_at)}</span>
-              <button onClick={e => handleShare(e, post.id)} style={{ marginLeft: "auto", background: "none", border: "1px solid #e8e2d8", borderRadius: 3, padding: "4px 10px", fontSize: 12, cursor: "pointer", color: copiedId === post.id ? "#1e7a47" : "#7a7570" }}>
-                {copiedId === post.id ? "✓ Copied!" : "🔗 Share"}
-              </button>
-        </div>
-        <div style={{ fontFamily: "Georgia,serif", fontSize: 20, fontWeight: 700, color: "#0f0e0d", marginBottom: 14, lineHeight: 1.3 }}>{post.title}</div>
-        <div style={{ fontSize: 15, color: "#3a3835", lineHeight: 1.8 }}>{post.body}</div>
-      </div>
-
-          <div style={{ fontSize: 13, fontWeight: 600, color: "#0f0e0d", marginBottom: 10 }}>{comments.length} Comment{comments.length !== 1 ? "s" : ""}</div>
-
-          {currentUser ? (
-            <div style={{ background: "white", border: "1px solid #e8e2d8", borderRadius: 6, padding: 14, marginBottom: 16 }}>
-              <div style={{ fontSize: 12, color: "#aaa", marginBottom: 8 }}>Commenting as {getPrefix(currentUser)}/{currentUser.username}</div>
-              <textarea value={commentText} onChange={e => setCommentText(e.target.value)} placeholder="What are your thoughts?" style={{ width: "100%", minHeight: 80, border: "1px solid #e8e2d8", borderRadius: 4, padding: "10px 12px", fontFamily: "inherit", fontSize: 13, resize: "vertical", color: "#0f0e0d", background: "#faf8f4", outline: "none", boxSizing: "border-box" }} onFocus={e => e.target.style.borderColor = "#c8692a"} onBlur={e => e.target.style.borderColor = "#e8e2d8"} />
-              <div style={{ marginTop: 8, display: "flex", justifyContent: "flex-end" }}>
-                <button onClick={submitComment} disabled={!commentText.trim() || commentLoading} style={{ background: commentText.trim() ? "#c8692a" : "#e8e2d8", color: commentText.trim() ? "white" : "#aaa", border: "none", borderRadius: 3, padding: "7px 18px", fontSize: 13, fontWeight: 500, cursor: commentText.trim() ? "pointer" : "default" }}>{commentLoading ? "Posting..." : "Post Comment"}</button>
-              </div>
-            </div>
-          ) : (
-            <div style={{ background: "#fdf0e8", border: "1px solid #f0d5b8", borderRadius: 6, padding: "14px 16px", marginBottom: 16, display: "flex", alignItems: "center", justifyContent: "space-between" }}>
-              <span style={{ fontSize: 13, color: "#7a7570" }}>Sign in to join the conversation</span>
-              <button onClick={onAuthRequired} style={{ background: "#c8692a", color: "white", border: "none", borderRadius: 3, padding: "6px 14px", fontSize: 12, fontWeight: 500, cursor: "pointer" }}>Sign In</button>
-            </div>
-          )}
-
-          {comments.map(c => (
-            <div key={c.id} style={{ background: "white", border: "1px solid #e8e2d8", borderRadius: 6, padding: "12px 14px", marginBottom: 8 }}>
-              <div style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: 6 }}>
-                <Avatar username={c.author_username} letter={c.author_username?.[0]} size={24} />
-                <span style={{ fontSize: 12, fontWeight: 500, color: "#0f0e0d" }}>u/{c.author_username}</span>
-                <span style={{ fontSize: 12, color: "#aaa" }}>· {timeAgo(c.created_at)}</span>
-              </div>
-              <div style={{ fontSize: 13, color: "#3a3835", lineHeight: 1.65, paddingLeft: 32 }}>{c.body}</div>
-              {currentUser?.is_admin === true && (
-                <div style={{ paddingLeft: 32, marginTop: 6 }}>
-                  <button onClick={async()=>{
-                    if (!window.confirm("Delete this comment?")) return;
-                    await supabase.from("comments").delete().eq("id", c.id);
-                    setComments(cs => cs.filter(x => x.id !== c.id));
+            <div style={{ fontSize:11, color:"#aaa", paddingTop:8, borderTop:"1px solid #e8e2d8" }}>🌍 Global · Free to join</div>
                   }} style={{ background:"none", border:"none", cursor:"pointer", fontSize:11, color:"#c0392b", padding:0, display:"flex", alignItems:"center", gap:3 }}>
                     🗑️ Delete comment
                   </button>
