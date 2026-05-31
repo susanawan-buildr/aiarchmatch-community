@@ -101,7 +101,19 @@ function AuthModal({ onClose, onLogin }) {
             <button key={m} onClick={()=>{setMode(m);setError("");}} style={{ flex:1, padding:8, border:"none", borderRadius:3, background:mode===m?"white":"transparent", color:mode===m?"#0f0e0d":"#7a7570", fontWeight:mode===m?500:400, fontSize:13, cursor:"pointer" }}>{m==="login"?"Sign In":"Join Free"}</button>
           ))}
         </div>
-        {mode==="register" && <input value={username} onChange={e=>setUsername(e.target.value)} placeholder="Choose a username" style={inp} />}
+        {mode==="register" && (
+          <div style={{ marginBottom:10 }}>
+            <input
+              value={username}
+              onChange={e => setUsername(e.target.value.toLowerCase().replace(/[^a-z0-9_]/g, ""))}
+              placeholder="Choose a username e.g. aj_awan"
+              style={{ ...inp, marginBottom:4 }}
+            />
+            <div style={{ fontSize:11, color:"#aaa", paddingLeft:2 }}>
+              Lowercase letters, numbers and underscores only. No capitals or spaces.
+            </div>
+          </div>
+        )}
         <input type="email" value={email} onChange={e=>setEmail(e.target.value)} placeholder="Email address" style={inp} />
         <input type="password" value={password} onChange={e=>setPassword(e.target.value)} placeholder="Password" style={{...inp,marginBottom:0}} onKeyDown={e=>e.key==="Enter"&&submit()} />
         {error && <div style={{ fontSize:12, color:"#c0392b", background:"#fdf0f0", padding:"6px 10px", borderRadius:3, marginTop:8 }}>{error}</div>}
