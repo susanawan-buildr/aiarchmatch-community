@@ -26,7 +26,7 @@ const COLORS = {
 function ac(l) { return COLORS[l?.toUpperCase()] || "#888"; }
 
 function getAvatarUrl(username, seed) {
-  const s = seed || username?.toLowerCase() || username || "default";
+  const s = seed || username?.toLowerCase() || "default";
   return `https://api.dicebear.com/7.x/bottts/svg?seed=${encodeURIComponent(s)}`;
 }
 
@@ -42,18 +42,6 @@ function timeAgo(ts) {
   return Math.floor(d/86400)+"d ago";
 }
 
-const s = {
-  wrap: { fontFamily:"'Segoe UI',sans-serif", background:"#faf8f4", minHeight:"100vh" },
-  nav: { background:"white", borderBottom:"1px solid #e8e2d8", padding:"0 20px", height:52, display:"flex", alignItems:"center", justifyContent:"space-between", position:"sticky", top:0, zIndex:100 },
-  logo: { fontFamily:"Georgia,serif", fontSize:18, fontWeight:700, color:"#0f0e0d", cursor:"pointer", letterSpacing:"-0.02em" },
-  layout: { maxWidth:900, margin:"0 auto", padding:"20px 16px", display:"grid", gridTemplateColumns:"200px 1fr", gap:20 },
-  sideBox: { background:"white", border:"1px solid #e8e2d8", borderRadius:6, overflow:"hidden", marginBottom:16 },
-  sideHead: { padding:"10px 14px", borderBottom:"1px solid #e8e2d8", fontSize:10, fontWeight:600, letterSpacing:"0.08em", textTransform:"uppercase", color:"#aaa" },
-  card: { background:"white", border:"1px solid #e8e2d8", borderRadius:6 },
-  btn: { background:"#c8692a", color:"white", border:"none", borderRadius:3, padding:"7px 16px", fontSize:13, fontWeight:500, cursor:"pointer" },
-  btnOut: { background:"none", border:"1px solid #e8e2d8", borderRadius:3, padding:"6px 14px", fontSize:13, cursor:"pointer", color:"#7a7570" },
-};
-
 function Avatar({ letter, username, seed, size=32 }) {
   const [imgError, setImgError] = React.useState(false);
   if (username && !imgError) {
@@ -68,7 +56,11 @@ function Avatar({ letter, username, seed, size=32 }) {
       />
     );
   }
-  return <div style={{ width:size, height:size, borderRadius:"50%", background:ac(letter), color:"white", display:"flex", alignItems:"center", justifyContent:"center", fontWeight:700, fontSize:size*0.4, flexShrink:0, fontFamily:"Georgia,serif" }}>{letter?.toUpperCase()}</div>;
+  return (
+    <div style={{ width:size, height:size, borderRadius:"50%", background:ac(letter), color:"white", display:"flex", alignItems:"center", justifyContent:"center", fontWeight:700, fontSize:size*0.4, flexShrink:0, fontFamily:"Georgia,serif" }}>
+      {letter?.toUpperCase()}
+    </div>
+  );
 }
 
 function VoteBtn({ count, voted, onUp, onDown }) {
@@ -77,6 +69,82 @@ function VoteBtn({ count, voted, onUp, onDown }) {
       <button onClick={onUp} style={{ background:"none", border:"none", cursor:"pointer", color:voted===1?"#c8692a":"#aaa", fontSize:16, padding:"2px 6px", borderRadius:4, lineHeight:1 }}>▲</button>
       <span style={{ fontSize:13, fontWeight:600, color:voted?"#c8692a":"#555", minWidth:20, textAlign:"center" }}>{count}</span>
       <button onClick={onDown} style={{ background:"none", border:"none", cursor:"pointer", color:voted===-1?"#5a7ca5":"#aaa", fontSize:16, padding:"2px 6px", borderRadius:4, lineHeight:1 }}>▼</button>
+    </div>
+  );
+}
+
+function Sidebar({ onCreatePost, onChannelClick, activeChannel, currentUser }) {
+  return (
+    <div>
+      <div style={{ background:"white", border:"1px solid #e8e2d8", borderRadius:6, overflow:"hidden", marginBottom:16 }}>
+        <div style={{ padding:"10px 14px", borderBottom:"1px solid #e8e2d8", fontSize:10, fontWeight:600, letterSpacing:"0.08em", textTransform:"uppercase", color:"#aaa" }}>Channels</div>
+        {[{id:null,label:"All Posts",icon:"🌐"},...CHANNELS].map(ch=>(
+          <div key={ch.id??"all"} onClick={()=>onChannelClick(ch.id)} style={{ padding:"9px 14px", cursor:"pointer", fontSize:13, display:"flex", alignItems:"center", gap:8, background:activeChannel===ch.id?"#fdf0e8":"white", color:activeChannel===ch.id?"#c8692a":"#3a3835", fontWeight:activeChannel===ch.id?500:400, borderLeft:activeChannel===ch.id?"2px solid #c8692a":"2px solid transparent", transition:"all 0.15s" }}
+            onMouseEnter={e=>{if(activeChannel!==ch.id)e.currentTarget.style.background="#faf8f4";}}
+            onMouseLeave={e=>{if(activeChannel!==ch.id)e.currentTarget.style.background="white";}}>
+            <span>{ch.icon}</span><span>{ch.label}</span>
+          </div>
+        ))}
+      </div>
+      <div style={{ background:"white", border:"1px solid #e8e2d8", borderRadius:6, padding:14 }}>
+        <div style={{ fontSize:12, fontWeight:600, color:"#0f0e0d", marginBottom:8, fontFamily:"Georgia,serif" }}>About</div>
+        <div style={{ fontSize:13, fontWeight:600, color:"#c8692a", marginBottom:6, fontFamily:"Georgia,serif", fontStyle:"italic" }}>Learn it. Build it. Automate it.</div>
+        <div style={{ fontSize:12, color:"#7a7570", lineHeight:1.7, marginBottom:12 }}>The home for developers, entrepreneurs and creators who want to do more with Claude and AI. Beginners and experts welcome.</div>
+        <div style={{ fontSize:11, color:"#7a7570", display:"flex", flexDirection:"column", gap:4, marginBottom:12 }}>
+          <div>✦ Prompts that actually work</div>
+          <div>✦ Real workflows and automations</div>
+          <div>✦ Tools, tips and AI news</div>
+          <div>✦ Jobs and collaboration</div>
+        </div>
+        <div style={{ fontSize:11, color:"#aaa", display:"flex", flexDirection:"column", gap:4, paddingTop:8, borderTop:"1px solid #e8e2d8", marginBottom:14 }}>
+          <div>🤖 All AI tools welcome</div>
+          <div>🌍 Global community</div>
+          <div>✓ Free to join</div>
+        </div>
+        <button style={{ display:"block", width:"100%", background:"#c8692a", color:"white", border:"none", borderRadius:3, padding:8, fontSize:12, fontWeight:500, cursor:"pointer" }} onClick={onCreatePost}>Create Post</button>
+      </div>
+    </div>
+  );
+}
+
+function NavBar({ currentUser, onAuth, onNewPost, onHome, onSignOut, showDropdown, setShowDropdown, showAvatarPicker, setShowAvatarPicker, avatarSeedInput, setAvatarSeedInput }) {
+  return (
+    <div style={{ background:"white", borderBottom:"1px solid #e8e2d8", padding:"0 20px", height:52, display:"flex", alignItems:"center", justifyContent:"space-between", position:"sticky", top:0, zIndex:100 }}>
+      <div style={{ fontFamily:"Georgia,serif", fontSize:18, fontWeight:700, color:"#0f0e0d", cursor:"pointer", letterSpacing:"-0.02em" }} onClick={onHome}>
+        Claude AI<span style={{ color:"#c8692a" }}>Community</span>
+        <span style={{ fontSize:12, fontWeight:400, color:"#aaa", marginLeft:6 }}>· AI Automation Community</span>
+      </div>
+      <div style={{ display:"flex", alignItems:"center", gap:10 }}>
+        {currentUser ? (
+          <>
+            <button style={{ background:"#c8692a", color:"white", border:"none", borderRadius:3, padding:"7px 16px", fontSize:13, fontWeight:500, cursor:"pointer" }} onClick={onNewPost}>+ Post</button>
+            <div style={{ position:"relative" }}>
+              <div onClick={()=>setShowDropdown(d=>!d)} style={{ display:"flex", alignItems:"center", gap:8, cursor:"pointer", padding:"4px 8px", borderRadius:4, border:"1px solid #e8e2d8", background:"white" }}>
+                <Avatar username={currentUser.username} seed={currentUser.avatar_seed} letter={currentUser.avatar_letter||currentUser.username?.[0]} size={28} />
+                <span style={{ fontSize:12, color:"#7a7570" }}>{getPrefix(currentUser)}/{currentUser.username}</span>
+                <span style={{ fontSize:10, color:"#aaa" }}>▼</span>
+              </div>
+              {showDropdown && (
+                <div style={{ position:"absolute", top:"calc(100% + 6px)", right:0, background:"white", border:"1px solid #e8e2d8", borderRadius:6, boxShadow:"0 8px 24px rgba(0,0,0,0.1)", minWidth:180, zIndex:200 }}>
+                  <div style={{ padding:"12px 14px", borderBottom:"1px solid #e8e2d8" }}>
+                    <div style={{ fontSize:13, fontWeight:600, color:"#0f0e0d" }}>{getPrefix(currentUser)}/{currentUser.username}</div>
+                    <div style={{ fontSize:11, color:currentUser.is_admin?"#c8692a":"#aaa", marginTop:2, fontWeight:currentUser.is_admin?500:400 }}>{currentUser.is_admin?"⚡ Moderator":"Member"}</div>
+                  </div>
+                  <div onClick={()=>{onNewPost();setShowDropdown(false);}} style={{ padding:"10px 14px", fontSize:13, cursor:"pointer", color:"#0f0e0d", display:"flex", alignItems:"center", gap:8 }} onMouseEnter={e=>e.currentTarget.style.background="#faf8f4"} onMouseLeave={e=>e.currentTarget.style.background="white"}>✏️ Create Post</div>
+                  <div onClick={()=>{setShowAvatarPicker(true);setShowDropdown(false);setAvatarSeedInput(currentUser.avatar_seed||currentUser.username);}} style={{ padding:"10px 14px", fontSize:13, cursor:"pointer", color:"#0f0e0d", display:"flex", alignItems:"center", gap:8 }} onMouseEnter={e=>e.currentTarget.style.background="#faf8f4"} onMouseLeave={e=>e.currentTarget.style.background="white"}>🤖 Change Avatar</div>
+                  <div onClick={onHome} style={{ padding:"10px 14px", fontSize:13, cursor:"pointer", color:"#0f0e0d", display:"flex", alignItems:"center", gap:8 }} onMouseEnter={e=>e.currentTarget.style.background="#faf8f4"} onMouseLeave={e=>e.currentTarget.style.background="white"}>🏠 All Posts</div>
+                  <div onClick={onSignOut} style={{ padding:"10px 14px", fontSize:13, cursor:"pointer", color:"#c0392b", display:"flex", alignItems:"center", gap:8, borderTop:"1px solid #e8e2d8" }} onMouseEnter={e=>e.currentTarget.style.background="#fdf0f0"} onMouseLeave={e=>e.currentTarget.style.background="white"}>🚪 Sign Out</div>
+                </div>
+              )}
+            </div>
+          </>
+        ) : (
+          <>
+            <button style={{ background:"none", border:"1px solid #e8e2d8", borderRadius:3, padding:"6px 14px", fontSize:13, cursor:"pointer", color:"#7a7570" }} onClick={onAuth}>Sign In</button>
+            <button style={{ background:"#c8692a", color:"white", border:"none", borderRadius:3, padding:"7px 16px", fontSize:13, fontWeight:500, cursor:"pointer" }} onClick={onAuth}>Join Free</button>
+          </>
+        )}
+      </div>
     </div>
   );
 }
@@ -96,10 +164,11 @@ function AuthModal({ onClose, onLogin }) {
     try {
       if (mode === "register") {
         if (!username.trim()) { setError("Username required"); setLoading(false); return; }
+        const cleanUsername = username.trim().toLowerCase();
         const { data, error: e } = await supabase.auth.signUp({ email, password });
         if (e) { setError(e.message); setLoading(false); return; }
-        await supabase.from("users").insert({ id: data.user.id, email, username: username.trim(), avatar_letter: username.trim()[0].toUpperCase() });
-        onLogin({ id: data.user.id, username: username.trim(), avatar_letter: username.trim()[0].toUpperCase() });
+        await supabase.from("users").insert({ id: data.user.id, email, username: cleanUsername, avatar_letter: cleanUsername[0].toUpperCase() });
+        onLogin({ id: data.user.id, username: cleanUsername, avatar_letter: cleanUsername[0].toUpperCase() });
       } else {
         const { data, error: e } = await supabase.auth.signInWithPassword({ email, password });
         if (e) { setError(e.message); setLoading(false); return; }
@@ -125,15 +194,8 @@ function AuthModal({ onClose, onLogin }) {
         </div>
         {mode==="register" && (
           <div style={{ marginBottom:10 }}>
-            <input
-              value={username}
-              onChange={e => setUsername(e.target.value.toLowerCase().replace(/[^a-z0-9_]/g, ""))}
-              placeholder="Choose a username"
-              style={{ ...inp, marginBottom:4 }}
-            />
-            <div style={{ fontSize:11, color:"#aaa", paddingLeft:2 }}>
-              Lowercase letters, numbers and underscores only. No capitals or spaces.
-            </div>
+            <input value={username} onChange={e=>setUsername(e.target.value.toLowerCase().replace(/[^a-z0-9_]/g,""))} placeholder="Choose a username" style={inp} />
+            <div style={{ fontSize:11, color:"#aaa", marginTop:-6, marginBottom:6 }}>Lowercase letters, numbers and underscores only</div>
           </div>
         )}
         <input type="email" value={email} onChange={e=>setEmail(e.target.value)} placeholder="Email address" style={inp} />
@@ -192,31 +254,53 @@ function NewPostModal({ channels, currentUser, onSubmit, onClose }) {
   );
 }
 
-export function App() {
+function AvatarPickerModal({ currentUser, onClose, onSave }) {
+  const [seed, setSeed] = useState(currentUser.avatar_seed || currentUser.username);
+  const [saving, setSaving] = useState(false);
+
+  const save = async () => {
+    setSaving(true);
+    const s = seed.trim() || currentUser.username;
+    await supabase.from("users").update({ avatar_seed: s }).eq("id", currentUser.id);
+    onSave(s);
+    setSaving(false);
+    onClose();
+  };
+
+  return (
+    <div style={{ position:"fixed", inset:0, background:"rgba(15,14,13,0.55)", display:"flex", alignItems:"center", justifyContent:"center", zIndex:1000, padding:20 }} onClick={onClose}>
+      <div style={{ background:"white", borderRadius:8, padding:28, width:"100%", maxWidth:440, boxShadow:"0 20px 60px rgba(0,0,0,0.15)" }} onClick={e=>e.stopPropagation()}>
+        <div style={{ display:"flex", justifyContent:"space-between", alignItems:"center", marginBottom:20 }}>
+          <div style={{ fontFamily:"Georgia,serif", fontSize:18, fontWeight:700 }}>Change Your Avatar</div>
+          <button onClick={onClose} style={{ background:"none", border:"none", cursor:"pointer", fontSize:20, color:"#aaa" }}>×</button>
+        </div>
+        <div style={{ fontSize:13, color:"#7a7570", marginBottom:16, lineHeight:1.6 }}>Type any word to generate a unique robot. Try a nickname, hobby or anything you like.</div>
+        <div style={{ display:"flex", gap:12, alignItems:"center", marginBottom:20 }}>
+          <img src={getAvatarUrl(null, seed||currentUser.username)} alt="preview" width={64} height={64} style={{ borderRadius:"50%", background:"#f5f0e8", flexShrink:0 }} />
+          <div style={{ flex:1 }}>
+            <div style={{ fontSize:12, fontWeight:500, color:"#7a7570", marginBottom:6 }}>Seed word</div>
+            <input value={seed} onChange={e=>setSeed(e.target.value.toLowerCase())} placeholder="e.g. starship, moonwalker, robot42" style={{ width:"100%", border:"1px solid #e8e2d8", borderRadius:4, padding:"10px 12px", fontFamily:"inherit", fontSize:13, color:"#0f0e0d", background:"#faf8f4", outline:"none", boxSizing:"border-box" }} onFocus={e=>e.target.style.borderColor="#c8692a"} onBlur={e=>e.target.style.borderColor="#e8e2d8"} />
+            <div style={{ fontSize:11, color:"#aaa", marginTop:4 }}>Preview updates as you type</div>
+          </div>
+        </div>
+        <div style={{ display:"flex", gap:10, justifyContent:"flex-end" }}>
+          <button onClick={onClose} style={{ background:"none", border:"1px solid #e8e2d8", borderRadius:3, padding:"8px 18px", fontSize:13, cursor:"pointer", color:"#7a7570" }}>Cancel</button>
+          <button onClick={save} disabled={saving} style={{ background:"#c8692a", color:"white", border:"none", borderRadius:3, padding:"8px 20px", fontSize:13, fontWeight:500, cursor:"pointer" }}>{saving?"Saving...":"Save Avatar"}</button>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+export function App({ currentUser, setCurrentUser, showAuth, setShowAuth, copiedId, handleShare, showDropdown, setShowDropdown }) {
   const [posts, setPosts] = useState([]);
   const [activeChannel, setActiveChannel] = useState(null);
-  const [activePost, setActivePost] = useState(null);
   const [sort, setSort] = useState("hot");
   const [showNew, setShowNew] = useState(false);
-  const [showAuth, setShowAuth] = useState(false);
-  const [currentUser, setCurrentUser] = useState(null);
-  const [loaded, setLoaded] = useState(false);
-  const [comments, setComments] = useState([]);
-  const [commentText, setCommentText] = useState("");
-  const [commentLoading, setCommentLoading] = useState(false);
-  const [copiedId, setCopiedId] = useState(null);
-  const [showDropdown, setShowDropdown] = useState(false);
   const [showAvatarPicker, setShowAvatarPicker] = useState(false);
   const [avatarSeedInput, setAvatarSeedInput] = useState("");
-
-  const handleShare = (e, postId) => {
-    e.stopPropagation();
-    const url = `${window.location.origin}/post/${postId}`;
-    navigator.clipboard?.writeText(url).then(() => {
-      setCopiedId(postId);
-      setTimeout(() => setCopiedId(null), 2000);
-    });
-  };
+  const [loaded, setLoaded] = useState(false);
+  const navigate = useNavigate();
 
   const fetchPosts = useCallback(async () => {
     const { data } = await supabase.from("posts").select("*").order("created_at", { ascending: false });
@@ -227,23 +311,7 @@ export function App() {
     setLoaded(true);
   }, []);
 
-  useEffect(() => {
-    fetchPosts();
-    supabase.auth.getSession().then(async ({ data: { session } }) => {
-      if (session) {
-        const { data: u } = await supabase.from("users").select("*").eq("id", session.user.id).single();
-        if (u) setCurrentUser(u);
-      }
-    });
-  }, [fetchPosts]);
-
-  useEffect(() => {
-    if (!activePost) return;
-    supabase.from("comments").select("*").eq("post_id", activePost.id).order("created_at", { ascending: true })
-      .then(({ data }) => setComments(data||[]));
-  }, [activePost]);
-
-  const navigate = useNavigate();
+  useEffect(() => { fetchPosts(); }, [fetchPosts]);
 
   const handleVote = async (postId, dir) => {
     if (!currentUser) { setShowAuth(true); return; }
@@ -252,17 +320,10 @@ export function App() {
     const next = prev === dir ? 0 : dir;
     const delta = next - prev;
     setPosts(ps => ps.map(p => p.id!==postId ? p : { ...p, votes: p.votes+delta, userVote: next }));
-    if (activePost?.id === postId) setActivePost(p => ({ ...p, votes: p.votes+delta, userVote: next }));
     await supabase.from("posts").update({ votes: post.votes+delta }).eq("id", postId);
     if (next===0) await supabase.from("votes").delete().eq("post_id", postId).eq("user_id", currentUser.id);
     else if (prev===0) await supabase.from("votes").insert({ post_id: postId, user_id: currentUser.id, direction: next });
     else await supabase.from("votes").update({ direction: next }).eq("post_id", postId).eq("user_id", currentUser.id);
-  };
-
-  const handleNewPost = async (data) => {
-    if (!currentUser) return;
-    const { data: np } = await supabase.from("posts").insert({ author_id: currentUser.id, author_username: currentUser.username, channel: data.channel, title: data.title, body: data.body, votes: 1 }).select().single();
-    if (np) setPosts(ps => [{ ...np, comment_count: 0, userVote: 1 }, ...ps]);
   };
 
   const handleDeletePost = async (e, postId) => {
@@ -273,23 +334,12 @@ export function App() {
     await supabase.from("comments").delete().eq("post_id", postId);
     await supabase.from("posts").delete().eq("id", postId);
     setPosts(ps => ps.filter(p => p.id !== postId));
-    if (activePost?.id === postId) setActivePost(null);
   };
 
-  const handleDeleteComment = async (commentId) => {
-    if (!currentUser?.is_admin) return;
-    if (!window.confirm("Delete this comment?")) return;
-    await supabase.from("comments").delete().eq("id", commentId);
-    setComments(cs => cs.filter(c => c.id !== commentId));
-  };
-
-  const handleComment = async () => {
-    if (!currentUser || !commentText.trim() || !activePost) return;
-    setCommentLoading(true);
-    const { data: nc } = await supabase.from("comments").insert({ post_id: activePost.id, author_id: currentUser.id, author_username: currentUser.username, body: commentText.trim() }).select().single();
-    if (nc) setComments(cs => [...cs, nc]);
-    setCommentText("");
-    setCommentLoading(false);
+  const handleNewPost = async (data) => {
+    if (!currentUser) return;
+    const { data: np } = await supabase.from("posts").insert({ author_id: currentUser.id, author_username: currentUser.username, channel: data.channel, title: data.title, body: data.body, votes: 1 }).select().single();
+    if (np) setPosts(ps => [{ ...np, comment_count: 0, userVote: 1 }, ...ps]);
   };
 
   const filtered = posts.filter(p => !activeChannel || p.channel === activeChannel);
@@ -302,237 +352,83 @@ export function App() {
   if (!loaded) return <div style={{ padding:60, textAlign:"center", fontFamily:"Georgia,serif", color:"#7a7570" }}>Loading Claude AI Community...</div>;
 
   return (
-    <div style={s.wrap}>
-      <div style={s.nav}>
-        <div style={s.logo} onClick={()=>{setActiveChannel(null);setActivePost(null);}}>
-          Claude AI<span style={{ color:"#c8692a" }}>Community</span>
-          
-        </div>
-        <div style={{ display:"flex", alignItems:"center", gap:10 }}>
-          {currentUser ? <>
-            <Avatar username={currentUser.username} seed={currentUser.avatar_seed} letter={currentUser.avatar_letter||currentUser.username[0]} size={28} />
-            <span style={{ fontSize:12, color:"#7a7570" }}>{getPrefix(currentUser)}/{currentUser.username}</span>
-            <button style={s.btn} onClick={()=>setShowNew(true)}>+ Post</button>
-            <button style={s.btnOut} onClick={async()=>{await supabase.auth.signOut();setCurrentUser(null);}}>Sign Out</button>
-          </> : <>
-            <button style={s.btnOut} onClick={()=>setShowAuth(true)}>Sign In</button>
-            <button style={s.btn} onClick={()=>setShowAuth(true)}>Join Free</button>
-          </>}
-        </div>
-      </div>
-
-      <div style={s.layout}>
+    <div style={{ fontFamily:"'Segoe UI',sans-serif", background:"#faf8f4", minHeight:"100vh" }}>
+      <NavBar
+        currentUser={currentUser}
+        onAuth={()=>setShowAuth(true)}
+        onNewPost={()=>setShowNew(true)}
+        onHome={()=>{ setActiveChannel(null); navigate("/"); }}
+        onSignOut={async()=>{ await supabase.auth.signOut(); setCurrentUser(null); }}
+        showDropdown={showDropdown}
+        setShowDropdown={setShowDropdown}
+        showAvatarPicker={showAvatarPicker}
+        setShowAvatarPicker={setShowAvatarPicker}
+        avatarSeedInput={avatarSeedInput}
+        setAvatarSeedInput={setAvatarSeedInput}
+      />
+      <div style={{ maxWidth:900, margin:"0 auto", padding:"20px 16px", display:"grid", gridTemplateColumns:"200px 1fr", gap:20 }}>
+        <Sidebar
+          onCreatePost={()=>currentUser?setShowNew(true):setShowAuth(true)}
+          onChannelClick={(id)=>{ setActiveChannel(id); }}
+          activeChannel={activeChannel}
+          currentUser={currentUser}
+        />
         <div>
-          <div style={s.sideBox}>
-            <div style={s.sideHead}>Channels</div>
-            {[{id:null,label:"All Posts",icon:"🌐"},...CHANNELS].map(ch=>(
-              <div key={ch.id??"all"} onClick={()=>{setActiveChannel(ch.id);setActivePost(null);}} style={{ padding:"9px 14px", cursor:"pointer", fontSize:13, display:"flex", alignItems:"center", gap:8, background:activeChannel===ch.id?"#fdf0e8":"white", color:activeChannel===ch.id?"#c8692a":"#3a3835", fontWeight:activeChannel===ch.id?500:400, borderLeft:activeChannel===ch.id?"2px solid #c8692a":"2px solid transparent", transition:"all 0.15s" }} onMouseEnter={e=>{if(activeChannel!==ch.id)e.currentTarget.style.background="#faf8f4";}} onMouseLeave={e=>{if(activeChannel!==ch.id)e.currentTarget.style.background="white";}}>
-                <span>{ch.icon}</span><span>{ch.label}</span>
-              </div>
+          <div style={{ background:"white", border:"1px solid #e8e2d8", borderRadius:6, padding:"8px 14px", marginBottom:10, display:"flex", gap:4, alignItems:"center" }}>
+            {["hot","new","top"].map(sv=>(
+              <button key={sv} onClick={()=>setSort(sv)} style={{ background:sort===sv?"#f5f0e8":"none", border:"none", borderRadius:4, padding:"5px 12px", fontSize:13, fontWeight:500, cursor:"pointer", color:sort===sv?"#c8692a":"#7a7570" }}>{sv==="hot"?"🔥 Hot":sv==="new"?"✨ New":"⬆ Top"}</button>
             ))}
+            <span style={{ marginLeft:"auto", fontSize:12, color:"#aaa" }}>{sorted.length} post{sorted.length!==1?"s":""}</span>
           </div>
-          <div style={{ background:"white", border:"1px solid #e8e2d8", borderRadius:6, padding:14 }}>
-            <div style={{ fontSize:12, fontWeight:600, color:"#0f0e0d", marginBottom:8, fontFamily:"Georgia,serif" }}>About</div>
-            <div style={{ fontSize:13, fontWeight:600, color:"#c8692a", marginBottom:6, fontFamily:"Georgia,serif", fontStyle:"italic" }}>Learn it. Build it. Automate it.</div>
-            <div style={{ fontSize:12, color:"#7a7570", lineHeight:1.7, marginBottom:12 }}>The home for developers, entrepreneurs and creators who want to do more with Claude and AI. Beginners and experts welcome.</div>
-            <div style={{ fontSize:11, color:"#7a7570", display:"flex", flexDirection:"column", gap:4, marginBottom:12 }}>
-              <div>✦ Prompts that actually work</div>
-              <div>✦ Real workflows and automations</div>
-              <div>✦ Tools, tips and AI news</div>
-              <div>✦ Jobs and collaboration</div>
-            </div>
-            <div style={{ fontSize:11, color:"#aaa", display:"flex", flexDirection:"column", gap:4, paddingTop:8, borderTop:"1px solid #e8e2d8" }}>
-              <div>🤖 All AI tools welcome</div>
-              <div>🌍 Global community</div>
-              <div>✓ Free to join</div>
-            </div>
-            <button style={{ display:"block", width:"100%", background:"#c8692a", color:"white", border:"none", borderRadius:3, padding:8, fontSize:12, fontWeight:500, cursor:"pointer" }} onClick={()=>currentUser?setShowNew(true):setShowAuth(true)}>Create Post</button>
-          </div>
-        </div>
 
-        <div>
-          {activePost ? (
-            <div>
-              <button onClick={()=>navigate(-1)} style={{ background:"none", border:"none", cursor:"pointer", color:"#c8692a", fontSize:13, fontWeight:500, padding:"0 0 16px", display:"flex", alignItems:"center", gap:4 }}>← Back</button>
-              <div style={{ ...s.card, padding:"20px 20px 16px", marginBottom:20 }}>
-                <div style={{ display:"flex", gap:14 }}>
-                  <VoteBtn count={activePost.votes} voted={activePost.userVote} onUp={()=>handleVote(activePost.id,1)} onDown={()=>handleVote(activePost.id,-1)} />
-                  <div style={{ flex:1 }}>
-                    <div style={{ display:"flex", alignItems:"center", gap:8, marginBottom:10, flexWrap:"wrap" }}>
-                      <span style={{ fontSize:11, background:"#f5f0e8", border:"1px solid #e8e2d8", borderRadius:100, padding:"2px 8px", color:"#7a7570" }}>{CHANNELS.find(c=>c.id===activePost.channel)?.icon} {CHANNELS.find(c=>c.id===activePost.channel)?.label}</span>
-                      <Avatar username={activePost.author_username} letter={activePost.author_username?.[0]} size={22} />
-                      <span style={{ fontSize:12, color:"#7a7570" }}>u/{activePost.author_username}</span>
-                      <span style={{ fontSize:12, color:"#aaa" }}>· {timeAgo(activePost.created_at)}</span>
-                    </div>
-                    <div style={{ fontFamily:"Georgia,serif", fontSize:18, fontWeight:700, color:"#0f0e0d", marginBottom:12, lineHeight:1.3 }}>{activePost.title}</div>
-                    <div style={{ fontSize:14, color:"#3a3835", lineHeight:1.75 }}>{activePost.body}</div>
-                  </div>
+          {activeChannel && (
+            <div style={{ background:"white", border:"1px solid #e8e2d8", borderRadius:6, padding:"16px 18px", marginBottom:12 }}>
+              <div style={{ fontSize:18, marginBottom:4 }}>{CHANNELS.find(c=>c.id===activeChannel)?.icon} <span style={{ fontFamily:"Georgia,serif", fontWeight:700, fontSize:16 }}>{CHANNELS.find(c=>c.id===activeChannel)?.label}</span></div>
+              <div style={{ fontSize:12, color:"#7a7570" }}>{CHANNELS.find(c=>c.id===activeChannel)?.desc}</div>
+            </div>
+          )}
+
+          {sorted.map(p=>(
+            <div key={p.id} onClick={()=>navigate(`/post/${p.id}`)} style={{ background:"white", border:"1px solid #e8e2d8", borderRadius:6, padding:"14px 16px", display:"flex", gap:12, cursor:"pointer", marginBottom:8, transition:"all 0.15s" }} onMouseEnter={e=>{e.currentTarget.style.borderColor="#c8692a";e.currentTarget.style.boxShadow="0 2px 12px rgba(0,0,0,0.06)";}} onMouseLeave={e=>{e.currentTarget.style.borderColor="#e8e2d8";e.currentTarget.style.boxShadow="none";}}>
+              <div onClick={e=>e.stopPropagation()}>
+                <VoteBtn count={p.votes} voted={p.userVote} onUp={()=>handleVote(p.id,1)} onDown={()=>handleVote(p.id,-1)} />
+              </div>
+              <div style={{ flex:1, minWidth:0 }}>
+                <div style={{ display:"flex", alignItems:"center", gap:8, marginBottom:6, flexWrap:"wrap" }}>
+                  {!activeChannel && <span style={{ fontSize:11, fontWeight:500, background:"#f5f0e8", border:"1px solid #e8e2d8", borderRadius:100, padding:"2px 8px", color:"#7a7570" }}>{CHANNELS.find(c=>c.id===p.channel)?.icon} {CHANNELS.find(c=>c.id===p.channel)?.label}</span>}
+                  <Avatar username={p.author_username} letter={p.author_username?.[0]} size={28} />
+                  <span style={{ fontSize:12, color:"#7a7570" }}>u/{p.author_username}</span>
+                  <span style={{ fontSize:12, color:"#aaa" }}>· {timeAgo(p.created_at)}</span>
+                </div>
+                <div style={{ fontFamily:"Georgia,serif", fontSize:15, fontWeight:700, color:"#0f0e0d", marginBottom:6, lineHeight:1.3 }}>{p.title}</div>
+                <div style={{ fontSize:13, color:"#7a7570", lineHeight:1.6, display:"-webkit-box", WebkitLineClamp:2, WebkitBoxOrient:"vertical", overflow:"hidden" }}>{p.body}</div>
+                <div style={{ marginTop:8, display:"flex", gap:12, alignItems:"center" }}>
+                  <span style={{ fontSize:12, color:"#aaa" }}>💬 {p.comment_count||0} comment{p.comment_count!==1?"s":""}</span>
+                  <button onClick={e=>handleShare(e,p.id)} style={{ background:"none", border:"none", cursor:"pointer", fontSize:12, color:copiedId===p.id?"#1e7a47":"#aaa", padding:0 }}>{copiedId===p.id?"✓ Link copied!":"🔗 Share"}</button>
+                  {currentUser?.is_admin===true && <button onClick={e=>handleDeletePost(e,p.id)} style={{ background:"none", border:"none", cursor:"pointer", fontSize:12, color:"#c0392b", padding:0 }}>🗑️ Delete</button>}
                 </div>
               </div>
-
-              <div style={{ display:"flex", alignItems:"center", justifyContent:"space-between", marginBottom:10 }}><div style={{ fontSize:13, fontWeight:600, color:"#0f0e0d" }}>{comments.length} Comment{comments.length!==1?"s":""}</div><button onClick={e=>handleShare(e,activePost.id)} style={{ background:"none", border:"1px solid #e8e2d8", borderRadius:3, padding:"5px 12px", fontSize:12, cursor:"pointer", color:copiedId===activePost.id?"#1e7a47":"#7a7570", display:"flex", alignItems:"center", gap:5 }}>{copiedId===activePost.id ? "✓ Copied!" : "🔗 Share post"}</button></div>
-
-              {currentUser ? (
-                <div style={{ ...s.card, padding:14, marginBottom:16 }}>
-                  <div style={{ fontSize:12, color:"#aaa", marginBottom:8 }}>Commenting as {getPrefix(currentUser)}/{currentUser.username}</div>
-                  <textarea value={commentText} onChange={e=>setCommentText(e.target.value)} placeholder="What are your thoughts?" style={{ width:"100%", minHeight:80, border:"1px solid #e8e2d8", borderRadius:4, padding:"10px 12px", fontFamily:"inherit", fontSize:13, resize:"vertical", color:"#0f0e0d", background:"#faf8f4", outline:"none", boxSizing:"border-box" }} onFocus={e=>e.target.style.borderColor="#c8692a"} onBlur={e=>e.target.style.borderColor="#e8e2d8"} />
-                  <div style={{ marginTop:8, display:"flex", justifyContent:"flex-end" }}>
-                    <button onClick={handleComment} disabled={!commentText.trim()||commentLoading} style={{ background:commentText.trim()?"#c8692a":"#e8e2d8", color:commentText.trim()?"white":"#aaa", border:"none", borderRadius:3, padding:"7px 18px", fontSize:13, fontWeight:500, cursor:commentText.trim()?"pointer":"default" }}>{commentLoading?"Posting...":"Post Comment"}</button>
-                  </div>
-                </div>
-              ) : (
-                <div style={{ background:"#fdf0e8", border:"1px solid #f0d5b8", borderRadius:6, padding:"14px 16px", marginBottom:16, display:"flex", alignItems:"center", justifyContent:"space-between" }}>
-                  <span style={{ fontSize:13, color:"#7a7570" }}>Sign in to join the conversation</span>
-                  <button onClick={()=>setShowAuth(true)} style={{ background:"#c8692a", color:"white", border:"none", borderRadius:3, padding:"6px 14px", fontSize:12, fontWeight:500, cursor:"pointer" }}>Sign In</button>
-                </div>
-              )}
-
-              {comments.map(c=>(
-                <div key={c.id} style={{ ...s.card, padding:"12px 14px", marginBottom:8 }}>
-                  <div style={{ display:"flex", alignItems:"center", gap:8, marginBottom:6 }}>
-                    <Avatar username={c.author_username} letter={c.author_username?.[0]} size={24} />
-                    <span style={{ fontSize:12, fontWeight:500, color:"#0f0e0d" }}>u/{c.author_username}</span>
-                    <span style={{ fontSize:12, color:"#aaa" }}>· {timeAgo(c.created_at)}</span>
-                  </div>
-                  <div style={{ fontSize:13, color:"#3a3835", lineHeight:1.65, paddingLeft:32 }}>{c.body}</div>
-                  {currentUser?.is_admin === true && (
-                    <div style={{ paddingLeft:32, marginTop:6 }}>
-                      <button onClick={()=>handleDeleteComment(c.id)} style={{ background:"none", border:"none", cursor:"pointer", fontSize:11, color:"#c0392b", padding:0, display:"flex", alignItems:"center", gap:3 }}>
-                        🗑️ Delete comment
-                      </button>
-                    </div>
-                  )}
-                </div>
-              ))}
-              {comments.length===0 && <div style={{ textAlign:"center", padding:"30px 0", color:"#aaa", fontSize:13 }}>No comments yet. Be the first.</div>}
             </div>
-          ) : (
-            <>
-              {activeChannel && (
-                <div style={{ ...s.card, padding:"16px 18px", marginBottom:12 }}>
-                  <div style={{ fontSize:18, marginBottom:4 }}>{CHANNELS.find(c=>c.id===activeChannel)?.icon} <span style={{ fontFamily:"Georgia,serif", fontWeight:700, fontSize:16 }}>{CHANNELS.find(c=>c.id===activeChannel)?.label}</span></div>
-                  <div style={{ fontSize:12, color:"#7a7570" }}>{CHANNELS.find(c=>c.id===activeChannel)?.desc}</div>
-                </div>
-              )}
-              <div style={{ ...s.card, padding:"8px 14px", marginBottom:10, display:"flex", gap:4, alignItems:"center" }}>
-                {["hot","new","top"].map(sv=>(
-                  <button key={sv} onClick={()=>setSort(sv)} style={{ background:sort===sv?"#f5f0e8":"none", border:"none", borderRadius:4, padding:"5px 12px", fontSize:13, fontWeight:500, cursor:"pointer", color:sort===sv?"#c8692a":"#7a7570" }}>{sv==="hot"?"🔥 Hot":sv==="new"?"✨ New":"⬆ Top"}</button>
-                ))}
-                <span style={{ marginLeft:"auto", fontSize:12, color:"#aaa" }}>{sorted.length} post{sorted.length!==1?"s":""}</span>
-              </div>
-              {sorted.map(p=>(
-                <div key={p.id} onClick={()=>navigate(`/post/${p.id}`)} style={{ ...s.card, padding:"14px 16px", display:"flex", gap:12, cursor:"pointer", marginBottom:8, transition:"all 0.15s" }} onMouseEnter={e=>{e.currentTarget.style.borderColor="#c8692a";e.currentTarget.style.boxShadow="0 2px 12px rgba(0,0,0,0.06)";}} onMouseLeave={e=>{e.currentTarget.style.borderColor="#e8e2d8";e.currentTarget.style.boxShadow="none";}}>
-                  <div onClick={e=>e.stopPropagation()}>
-                    <VoteBtn count={p.votes} voted={p.userVote} onUp={()=>handleVote(p.id,1)} onDown={()=>handleVote(p.id,-1)} />
-                  </div>
-                  <div style={{ flex:1, minWidth:0 }}>
-                    <div style={{ display:"flex", alignItems:"center", gap:8, marginBottom:6, flexWrap:"wrap" }}>
-                      {!activeChannel && <span style={{ fontSize:11, fontWeight:500, background:"#f5f0e8", border:"1px solid #e8e2d8", borderRadius:100, padding:"2px 8px", color:"#7a7570" }}>{CHANNELS.find(c=>c.id===p.channel)?.icon} {CHANNELS.find(c=>c.id===p.channel)?.label}</span>}
-                      <Avatar username={p.author_username} letter={p.author_username?.[0]} size={28} />
-                      <span style={{ fontSize:12, color:"#7a7570" }}>u/{p.author_username}</span>
-                      <span style={{ fontSize:12, color:"#aaa" }}>· {timeAgo(p.created_at)}</span>
-                    </div>
-                    <div style={{ fontFamily:"Georgia,serif", fontSize:15, fontWeight:700, color:"#0f0e0d", marginBottom:6, lineHeight:1.3 }}>{p.title}</div>
-                    <div style={{ fontSize:13, color:"#7a7570", lineHeight:1.6, display:"-webkit-box", WebkitLineClamp:2, WebkitBoxOrient:"vertical", overflow:"hidden" }}>{p.body}</div>
-                    <div style={{ marginTop:8, display:"flex", gap:12, alignItems:"center" }}><span style={{ fontSize:12, color:"#aaa" }}>💬 {p.comment_count||0} comment{p.comment_count!==1?"s":""}</span><button onClick={e=>handleShare(e,p.id)} style={{ background:"none", border:"none", cursor:"pointer", fontSize:12, color:copiedId===p.id?"#1e7a47":"#aaa", display:"flex", alignItems:"center", gap:4, padding:0 }}>{copiedId===p.id ? "✓ Link copied!" : "🔗 Share"}</button>
-                      {currentUser?.is_admin === true && <button onClick={e=>handleDeletePost(e,p.id)} style={{ background:"none", border:"none", cursor:"pointer", fontSize:12, color:"#c0392b", display:"flex", alignItems:"center", gap:4, padding:0, marginLeft:4 }}>🗑️ Delete</button>}
-                    </div>
-                  </div>
-                </div>
-              ))}
-              {sorted.length===0 && (
-                <div style={{ ...s.card, padding:"40px 20px", textAlign:"center" }}>
-                  <div style={{ fontSize:32, marginBottom:12 }}>🏗️</div>
-                  <div style={{ fontFamily:"Georgia,serif", fontSize:16, fontWeight:700, marginBottom:8 }}>Nothing here yet</div>
-                  <div style={{ fontSize:13, color:"#7a7570", marginBottom:16 }}>Be the first to post in this channel.</div>
-                  <button style={s.btn} onClick={()=>currentUser?setShowNew(true):setShowAuth(true)}>Create Post</button>
-                </div>
-              )}
-            </>
+          ))}
+
+          {sorted.length===0 && (
+            <div style={{ background:"white", border:"1px solid #e8e2d8", borderRadius:6, padding:"40px 20px", textAlign:"center" }}>
+              <div style={{ fontSize:32, marginBottom:12 }}>🏗️</div>
+              <div style={{ fontFamily:"Georgia,serif", fontSize:16, fontWeight:700, marginBottom:8 }}>Nothing here yet</div>
+              <div style={{ fontSize:13, color:"#7a7570", marginBottom:16 }}>Be the first to post in this channel.</div>
+              <button style={{ background:"#c8692a", color:"white", border:"none", borderRadius:3, padding:"8px 20px", fontSize:13, fontWeight:500, cursor:"pointer" }} onClick={()=>currentUser?setShowNew(true):setShowAuth(true)}>Create Post</button>
+            </div>
           )}
         </div>
       </div>
 
-      {showAvatarPicker && (
-        <div style={{ position:"fixed", inset:0, background:"rgba(15,14,13,0.55)", display:"flex", alignItems:"center", justifyContent:"center", zIndex:1000, padding:20 }} onClick={()=>setShowAvatarPicker(false)}>
-          <div style={{ background:"white", borderRadius:8, padding:28, width:"100%", maxWidth:440, boxShadow:"0 20px 60px rgba(0,0,0,0.15)" }} onClick={e=>e.stopPropagation()}>
-            <div style={{ display:"flex", justifyContent:"space-between", alignItems:"center", marginBottom:20 }}>
-              <div style={{ fontFamily:"Georgia,serif", fontSize:18, fontWeight:700 }}>Change Your Avatar</div>
-              <button onClick={()=>setShowAvatarPicker(false)} style={{ background:"none", border:"none", cursor:"pointer", fontSize:20, color:"#aaa" }}>×</button>
-            </div>
-            <div style={{ fontSize:13, color:"#7a7570", marginBottom:16, lineHeight:1.6 }}>
-              Type any word to generate a unique robot. Try your nickname, a hobby, anything you like.
-            </div>
-            <div style={{ display:"flex", gap:12, alignItems:"center", marginBottom:20 }}>
-              <img src={getAvatarUrl(null, avatarSeedInput||currentUser.username)} alt="preview" width={64} height={64} style={{ borderRadius:"50%", background:"#f5f0e8", flexShrink:0 }} />
-              <div style={{ flex:1 }}>
-                <div style={{ fontSize:12, fontWeight:500, color:"#7a7570", marginBottom:6 }}>Seed word</div>
-                <input
-                  value={avatarSeedInput}
-                  onChange={e=>setAvatarSeedInput(e.target.value.toLowerCase())}
-                  placeholder="e.g. starship, moonwalker, robot42"
-                  style={{ width:"100%", border:"1px solid #e8e2d8", borderRadius:4, padding:"10px 12px", fontFamily:"inherit", fontSize:13, color:"#0f0e0d", background:"#faf8f4", outline:"none", boxSizing:"border-box" }}
-                  onFocus={e=>e.target.style.borderColor="#c8692a"}
-                  onBlur={e=>e.target.style.borderColor="#e8e2d8"}
-                />
-                <div style={{ fontSize:11, color:"#aaa", marginTop:4 }}>Preview updates as you type</div>
-              </div>
-            </div>
-            <div style={{ display:"flex", gap:10, justifyContent:"flex-end" }}>
-              <button onClick={()=>setShowAvatarPicker(false)} style={{ background:"none", border:"1px solid #e8e2d8", borderRadius:3, padding:"8px 18px", fontSize:13, cursor:"pointer", color:"#7a7570" }}>Cancel</button>
-              <button onClick={async()=>{
-                const seed = avatarSeedInput.trim() || currentUser.username;
-                await supabase.from("users").update({ avatar_seed: seed }).eq("id", currentUser.id);
-                setCurrentUser(u => ({ ...u, avatar_seed: seed }));
-                setShowAvatarPicker(false);
-              }} style={{ background:"#c8692a", color:"white", border:"none", borderRadius:3, padding:"8px 20px", fontSize:13, fontWeight:500, cursor:"pointer" }}>Save Avatar</button>
-            </div>
-          </div>
-        </div>
-      )}
       {showNew && <NewPostModal channels={CHANNELS} currentUser={currentUser} onSubmit={handleNewPost} onClose={()=>setShowNew(false)} />}
-      {showAuth && <AuthModal onClose={()=>setShowAuth(false)} onLogin={user=>{setCurrentUser(user);setShowAuth(false);}} />}
+      {showAvatarPicker && <AvatarPickerModal currentUser={currentUser} onClose={()=>setShowAvatarPicker(false)} onSave={seed=>setCurrentUser(u=>({...u,avatar_seed:seed}))} />}
     </div>
   );
 }
 
-// ─── ROOT WRAPPER ───
-export default function Root() {
-  const [currentUser, setCurrentUser] = useState(null);
-  const [showAuth, setShowAuth] = useState(false);
-  const [copiedId, setCopiedId] = useState(null);
-
-  useEffect(() => {
-    supabase.auth.getSession().then(async ({ data: { session } }) => {
-      if (session) {
-        const { data: u } = await supabase.from("users").select("*").eq("id", session.user.id).single();
-        if (u) setCurrentUser(u);
-      }
-    });
-  }, []);
-
-  const handleShare = (e, postId) => {
-    e.stopPropagation();
-    const url = `${window.location.origin}/post/${postId}`;
-    navigator.clipboard?.writeText(url).then(() => {
-      setCopiedId(postId);
-      setTimeout(() => setCopiedId(null), 2000);
-    });
-  };
-
-  return (
-    <>
-      <Routes>
-        <Route path="/" element={<App currentUser={currentUser} setCurrentUser={setCurrentUser} showAuth={showAuth} setShowAuth={setShowAuth} copiedId={copiedId} handleShare={handleShare} />} />
-        <Route path="/post/:id" element={<PostPage currentUser={currentUser} onAuthRequired={() => setShowAuth(true)} copiedId={copiedId} handleShare={handleShare} />} />
-      </Routes>
-      {showAuth && <AuthModal onClose={() => setShowAuth(false)} onLogin={user => { setCurrentUser(user); setShowAuth(false); }} />}
-    </>
-  );
-}
-
-// ─── POST PAGE (direct URL access) ───
-export function PostPage({ currentUser: propUser, onAuthRequired, onVote, copiedId, handleShare }) {
+export function PostPage({ currentUser: propUser, onAuthRequired, copiedId, handleShare }) {
   const { id } = useParams();
   const navigate = useNavigate();
   const [post, setPost] = useState(null);
@@ -541,11 +437,9 @@ export function PostPage({ currentUser: propUser, onAuthRequired, onVote, copied
   const [loading, setLoading] = useState(true);
   const [commentLoading, setCommentLoading] = useState(false);
   const [currentUser, setCurrentUser] = useState(propUser);
-  const [showPageDropdown, setShowPageDropdown] = useState(false);
+  const [showDropdown, setShowDropdown] = useState(false);
 
-  useEffect(() => {
-    setCurrentUser(propUser);
-  }, [propUser]);
+  useEffect(() => { setCurrentUser(propUser); }, [propUser]);
 
   useEffect(() => {
     if (!propUser) {
@@ -568,17 +462,19 @@ export function PostPage({ currentUser: propUser, onAuthRequired, onVote, copied
   const submitComment = async () => {
     if (!currentUser || !commentText.trim()) return;
     setCommentLoading(true);
-    const { data: nc } = await supabase.from("comments").insert({
-      post_id: id, author_id: currentUser.id,
-      author_username: currentUser.username, body: commentText.trim()
-    }).select().single();
+    const { data: nc } = await supabase.from("comments").insert({ post_id: id, author_id: currentUser.id, author_username: currentUser.username, body: commentText.trim() }).select().single();
     if (nc) setComments(cs => [...cs, nc]);
     setCommentText("");
     setCommentLoading(false);
   };
 
-  if (loading) return <div style={{ padding: 60, textAlign: "center", color: "#aaa" }}>Loading...</div>;
-  if (!post) return <div style={{ padding: 60, textAlign: "center", color: "#aaa" }}>Post not found. <button onClick={() => navigate("/")} style={{ color: "#c8692a", background: "none", border: "none", cursor: "pointer" }}>Go home</button></div>;
+  const signOut = async () => {
+    await supabase.auth.signOut();
+    window.location.href = "/";
+  };
+
+  if (loading) return <div style={{ padding:60, textAlign:"center", color:"#aaa" }}>Loading...</div>;
+  if (!post) return <div style={{ padding:60, textAlign:"center", color:"#aaa" }}>Post not found. <button onClick={()=>navigate("/")} style={{ color:"#c8692a", background:"none", border:"none", cursor:"pointer" }}>Go home</button></div>;
 
   const ch = CHANNELS.find(c => c.id === post.channel);
 
@@ -590,76 +486,124 @@ export function PostPage({ currentUser: propUser, onAuthRequired, onVote, copied
           <span style={{ fontSize:12, fontWeight:400, color:"#aaa", marginLeft:6 }}>· AI Automation Community</span>
         </div>
         <div style={{ display:"flex", alignItems:"center", gap:10 }}>
-          {currentUser ? <>
+          {currentUser ? (
             <div style={{ position:"relative" }}>
-              <div onClick={()=>setShowPageDropdown(d=>!d)} style={{ display:"flex", alignItems:"center", gap:8, cursor:"pointer", padding:"4px 8px", borderRadius:4, border:"1px solid #e8e2d8", background:"white" }}>
+              <div onClick={()=>setShowDropdown(d=>!d)} style={{ display:"flex", alignItems:"center", gap:8, cursor:"pointer", padding:"4px 8px", borderRadius:4, border:"1px solid #e8e2d8", background:"white" }}>
                 <Avatar username={currentUser.username} seed={currentUser.avatar_seed} letter={currentUser.avatar_letter||currentUser.username?.[0]} size={28} />
                 <span style={{ fontSize:12, color:"#7a7570" }}>{getPrefix(currentUser)}/{currentUser.username}</span>
                 <span style={{ fontSize:10, color:"#aaa" }}>▼</span>
               </div>
-              {showPageDropdown && (
+              {showDropdown && (
                 <div style={{ position:"absolute", top:"calc(100% + 6px)", right:0, background:"white", border:"1px solid #e8e2d8", borderRadius:6, boxShadow:"0 8px 24px rgba(0,0,0,0.1)", minWidth:180, zIndex:200 }}>
                   <div style={{ padding:"12px 14px", borderBottom:"1px solid #e8e2d8" }}>
                     <div style={{ fontSize:13, fontWeight:600, color:"#0f0e0d" }}>{getPrefix(currentUser)}/{currentUser.username}</div>
-                    <div style={{ fontSize:11, color:currentUser.is_admin?"#c8692a":"#aaa", marginTop:2, fontWeight:currentUser.is_admin?500:400 }}>{currentUser.is_admin ? "⚡ Moderator" : "Member"}</div>
+                    <div style={{ fontSize:11, color:currentUser.is_admin?"#c8692a":"#aaa", marginTop:2 }}>{currentUser.is_admin?"⚡ Moderator":"Member"}</div>
                   </div>
-                  <div onClick={()=>navigate("/")} style={{ padding:"10px 14px", fontSize:13, cursor:"pointer", color:"#0f0e0d", display:"flex", alignItems:"center", gap:8 }}
-                    onMouseEnter={e=>e.currentTarget.style.background="#faf8f4"}
-                    onMouseLeave={e=>e.currentTarget.style.background="white"}>
-                    🏠 All Posts
-                  </div>
-                  <div onClick={async()=>{ await supabase.auth.signOut(); window.location.href="/"; }} style={{ padding:"10px 14px", fontSize:13, cursor:"pointer", color:"#c0392b", display:"flex", alignItems:"center", gap:8, borderTop:"1px solid #e8e2d8" }}
-                    onMouseEnter={e=>e.currentTarget.style.background="#fdf0f0"}
-                    onMouseLeave={e=>e.currentTarget.style.background="white"}>
-                    🚪 Sign Out
-                  </div>
+                  <div onClick={()=>navigate("/")} style={{ padding:"10px 14px", fontSize:13, cursor:"pointer", color:"#0f0e0d", display:"flex", alignItems:"center", gap:8 }} onMouseEnter={e=>e.currentTarget.style.background="#faf8f4"} onMouseLeave={e=>e.currentTarget.style.background="white"}>🏠 All Posts</div>
+                  <div onClick={signOut} style={{ padding:"10px 14px", fontSize:13, cursor:"pointer", color:"#c0392b", display:"flex", alignItems:"center", gap:8, borderTop:"1px solid #e8e2d8" }} onMouseEnter={e=>e.currentTarget.style.background="#fdf0f0"} onMouseLeave={e=>e.currentTarget.style.background="white"}>🚪 Sign Out</div>
                 </div>
               )}
             </div>
-          </> : <>
-            <button onClick={onAuthRequired} style={{ background:"none", border:"1px solid #e8e2d8", borderRadius:3, padding:"6px 14px", fontSize:13, cursor:"pointer", color:"#7a7570" }}>Sign In</button>
-            <button onClick={onAuthRequired} style={{ background:"#c8692a", color:"white", border:"none", borderRadius:3, padding:"7px 16px", fontSize:13, fontWeight:500, cursor:"pointer" }}>Join Free</button>
-          </>}
+          ) : (
+            <>
+              <button onClick={onAuthRequired} style={{ background:"none", border:"1px solid #e8e2d8", borderRadius:3, padding:"6px 14px", fontSize:13, cursor:"pointer", color:"#7a7570" }}>Sign In</button>
+              <button onClick={onAuthRequired} style={{ background:"#c8692a", color:"white", border:"none", borderRadius:3, padding:"7px 16px", fontSize:13, fontWeight:500, cursor:"pointer" }}>Join Free</button>
+            </>
+          )}
         </div>
       </div>
 
       <div style={{ maxWidth:900, margin:"0 auto", padding:"20px 16px", display:"grid", gridTemplateColumns:"200px 1fr", gap:20 }}>
+        <Sidebar onCreatePost={()=>currentUser?null:onAuthRequired()} onChannelClick={()=>navigate("/")} activeChannel={null} currentUser={currentUser} />
+
         <div>
-          <div style={{ background:"white", border:"1px solid #e8e2d8", borderRadius:6, overflow:"hidden", marginBottom:16 }}>
-            <div style={{ padding:"10px 14px", borderBottom:"1px solid #e8e2d8", fontSize:10, fontWeight:600, letterSpacing:"0.08em", textTransform:"uppercase", color:"#aaa" }}>Channels</div>
-            {[{id:null,label:"All Posts",icon:"🌐"},...CHANNELS].map(ch=>(
-              <div key={ch.id??"all"} onClick={()=>navigate("/")} style={{ padding:"9px 14px", cursor:"pointer", fontSize:13, display:"flex", alignItems:"center", gap:8, color:"#3a3835", borderLeft:"2px solid transparent", transition:"all 0.15s" }}
-                onMouseEnter={e=>e.currentTarget.style.background="#faf8f4"}
-                onMouseLeave={e=>e.currentTarget.style.background="white"}>
-                <span>{ch.icon}</span><span>{ch.label}</span>
-              </div>
-            ))}
+          <button onClick={()=>navigate("/")} style={{ background:"none", border:"none", cursor:"pointer", color:"#c8692a", fontSize:13, fontWeight:500, padding:"0 0 16px", display:"flex", alignItems:"center", gap:4 }}>← Back to community</button>
+
+          <div style={{ background:"white", border:"1px solid #e8e2d8", borderRadius:6, padding:"20px 20px 16px", marginBottom:20 }}>
+            <div style={{ display:"flex", alignItems:"center", gap:8, marginBottom:10, flexWrap:"wrap" }}>
+              <span style={{ fontSize:11, background:"#f5f0e8", border:"1px solid #e8e2d8", borderRadius:100, padding:"2px 8px", color:"#7a7570" }}>{ch?.icon} {ch?.label}</span>
+              <Avatar username={post.author_username} letter={post.author_username?.[0]} size={22} />
+              <span style={{ fontSize:12, color:"#7a7570" }}>u/{post.author_username}</span>
+              <span style={{ fontSize:12, color:"#aaa" }}>· {timeAgo(post.created_at)}</span>
+              <button onClick={e=>handleShare(e,post.id)} style={{ marginLeft:"auto", background:"none", border:"1px solid #e8e2d8", borderRadius:3, padding:"4px 10px", fontSize:12, cursor:"pointer", color:copiedId===post.id?"#1e7a47":"#7a7570" }}>{copiedId===post.id?"✓ Copied!":"🔗 Share"}</button>
+              {currentUser?.is_admin===true && (
+                <button onClick={async(e)=>{ e.stopPropagation(); if(!window.confirm("Delete this post?")) return; await supabase.from("votes").delete().eq("post_id",post.id); await supabase.from("comments").delete().eq("post_id",post.id); await supabase.from("posts").delete().eq("id",post.id); navigate("/"); }} style={{ background:"none", border:"1px solid #c0392b", borderRadius:3, padding:"4px 10px", fontSize:12, cursor:"pointer", color:"#c0392b" }}>🗑️ Delete post</button>
+              )}
+            </div>
+            <div style={{ fontFamily:"Georgia,serif", fontSize:20, fontWeight:700, color:"#0f0e0d", marginBottom:14, lineHeight:1.3 }}>{post.title}</div>
+            <div style={{ fontSize:15, color:"#3a3835", lineHeight:1.8 }}>{post.body}</div>
           </div>
-          <div style={{ background:"white", border:"1px solid #e8e2d8", borderRadius:6, padding:14 }}>
-            <div style={{ fontSize:12, fontWeight:600, color:"#0f0e0d", marginBottom:8, fontFamily:"Georgia,serif" }}>About</div>
-            <div style={{ fontSize:13, fontWeight:600, color:"#c8692a", marginBottom:6, fontFamily:"Georgia,serif", fontStyle:"italic" }}>Learn it. Build it. Automate it.</div>
-            <div style={{ fontSize:12, color:"#7a7570", lineHeight:1.7, marginBottom:12 }}>The home for developers, entrepreneurs and creators who want to do more with Claude and AI. Beginners and experts welcome.</div>
-            <div style={{ fontSize:11, color:"#7a7570", display:"flex", flexDirection:"column", gap:4, marginBottom:12 }}>
-              <div>✦ Prompts that actually work</div>
-              <div>✦ Real workflows and automations</div>
-              <div>✦ Tools, tips and AI news</div>
-              <div>✦ Jobs and collaboration</div>
+
+          <div style={{ fontSize:13, fontWeight:600, color:"#0f0e0d", marginBottom:10 }}>{comments.length} Comment{comments.length!==1?"s":""}</div>
+
+          {currentUser ? (
+            <div style={{ background:"white", border:"1px solid #e8e2d8", borderRadius:6, padding:14, marginBottom:16 }}>
+              <div style={{ fontSize:12, color:"#aaa", marginBottom:8 }}>Commenting as {getPrefix(currentUser)}/{currentUser.username}</div>
+              <textarea value={commentText} onChange={e=>setCommentText(e.target.value)} placeholder="What are your thoughts?" style={{ width:"100%", minHeight:80, border:"1px solid #e8e2d8", borderRadius:4, padding:"10px 12px", fontFamily:"inherit", fontSize:13, resize:"vertical", color:"#0f0e0d", background:"#faf8f4", outline:"none", boxSizing:"border-box" }} onFocus={e=>e.target.style.borderColor="#c8692a"} onBlur={e=>e.target.style.borderColor="#e8e2d8"} />
+              <div style={{ marginTop:8, display:"flex", justifyContent:"flex-end" }}>
+                <button onClick={submitComment} disabled={!commentText.trim()||commentLoading} style={{ background:commentText.trim()?"#c8692a":"#e8e2d8", color:commentText.trim()?"white":"#aaa", border:"none", borderRadius:3, padding:"7px 18px", fontSize:13, fontWeight:500, cursor:commentText.trim()?"pointer":"default" }}>{commentLoading?"Posting...":"Post Comment"}</button>
+              </div>
             </div>
-            <div style={{ fontSize:11, color:"#aaa", display:"flex", flexDirection:"column", gap:4, paddingTop:8, borderTop:"1px solid #e8e2d8" }}>
-              <div>🤖 All AI tools welcome</div>
-              <div>🌍 Global community</div>
-              <div>✓ Free to join</div>
+          ) : (
+            <div style={{ background:"#fdf0e8", border:"1px solid #f0d5b8", borderRadius:6, padding:"14px 16px", marginBottom:16, display:"flex", alignItems:"center", justifyContent:"space-between" }}>
+              <span style={{ fontSize:13, color:"#7a7570" }}>Sign in to join the conversation</span>
+              <button onClick={onAuthRequired} style={{ background:"#c8692a", color:"white", border:"none", borderRadius:3, padding:"6px 14px", fontSize:12, fontWeight:500, cursor:"pointer" }}>Sign In</button>
             </div>
-                  }} style={{ background:"none", border:"none", cursor:"pointer", fontSize:11, color:"#c0392b", padding:0, display:"flex", alignItems:"center", gap:3 }}>
-                    🗑️ Delete comment
-                  </button>
+          )}
+
+          {comments.map(c=>(
+            <div key={c.id} style={{ background:"white", border:"1px solid #e8e2d8", borderRadius:6, padding:"12px 14px", marginBottom:8 }}>
+              <div style={{ display:"flex", alignItems:"center", gap:8, marginBottom:6 }}>
+                <Avatar username={c.author_username} letter={c.author_username?.[0]} size={24} />
+                <span style={{ fontSize:12, fontWeight:500, color:"#0f0e0d" }}>u/{c.author_username}</span>
+                <span style={{ fontSize:12, color:"#aaa" }}>· {timeAgo(c.created_at)}</span>
+              </div>
+              <div style={{ fontSize:13, color:"#3a3835", lineHeight:1.65, paddingLeft:32 }}>{c.body}</div>
+              {currentUser?.is_admin===true && (
+                <div style={{ paddingLeft:32, marginTop:6 }}>
+                  <button onClick={async()=>{ if(!window.confirm("Delete this comment?")) return; await supabase.from("comments").delete().eq("id",c.id); setComments(cs=>cs.filter(x=>x.id!==c.id)); }} style={{ background:"none", border:"none", cursor:"pointer", fontSize:11, color:"#c0392b", padding:0 }}>🗑️ Delete comment</button>
                 </div>
               )}
-        </div>
-      ))}
-          {comments.length === 0 && <div style={{ textAlign: "center", padding: "30px 0", color: "#aaa", fontSize: 13 }}>No comments yet. Be the first.</div>}
+            </div>
+          ))}
+          {comments.length===0 && <div style={{ textAlign:"center", padding:"30px 0", color:"#aaa", fontSize:13 }}>No comments yet. Be the first.</div>}
         </div>
       </div>
     </div>
+  );
+}
+
+export default function Root() {
+  const [currentUser, setCurrentUser] = useState(null);
+  const [showAuth, setShowAuth] = useState(false);
+  const [copiedId, setCopiedId] = useState(null);
+  const [showDropdown, setShowDropdown] = useState(false);
+
+  useEffect(() => {
+    supabase.auth.getSession().then(async ({ data: { session } }) => {
+      if (session) {
+        const { data: u } = await supabase.from("users").select("*").eq("id", session.user.id).single();
+        if (u) setCurrentUser(u);
+      }
+    });
+  }, []);
+
+  const handleShare = (e, postId) => {
+    e.stopPropagation();
+    const url = `${window.location.origin}/post/${postId}`;
+    navigator.clipboard?.writeText(url).then(() => {
+      setCopiedId(postId);
+      setTimeout(() => setCopiedId(null), 2000);
+    });
+  };
+
+  return (
+    <>
+      <Routes>
+        <Route path="/" element={<App currentUser={currentUser} setCurrentUser={setCurrentUser} showAuth={showAuth} setShowAuth={setShowAuth} copiedId={copiedId} handleShare={handleShare} showDropdown={showDropdown} setShowDropdown={setShowDropdown} />} />
+        <Route path="/post/:id" element={<PostPage currentUser={currentUser} onAuthRequired={()=>setShowAuth(true)} copiedId={copiedId} handleShare={handleShare} />} />
+      </Routes>
+      {showAuth && <AuthModal onClose={()=>setShowAuth(false)} onLogin={user=>{ setCurrentUser(user); setShowAuth(false); }} />}
+    </>
   );
 }
