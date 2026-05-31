@@ -478,51 +478,93 @@ export function PostPage({ currentUser, onAuthRequired, onVote, copiedId, handle
   const ch = CHANNELS.find(c => c.id === post.channel);
 
   return (
-    <div style={{ maxWidth: 700, margin: "0 auto", padding: "20px 16px" }}>
-      <button onClick={() => navigate("/")} style={{ background: "none", border: "none", cursor: "pointer", color: "#c8692a", fontSize: 13, fontWeight: 500, padding: "0 0 16px", display: "flex", alignItems: "center", gap: 4 }}>← Back to community</button>
+    <div style={{ fontFamily:"'Segoe UI',sans-serif", background:"#faf8f4", minHeight:"100vh" }}>
+      <div style={{ background:"white", borderBottom:"1px solid #e8e2d8", padding:"0 20px", height:52, display:"flex", alignItems:"center", justifyContent:"space-between", position:"sticky", top:0, zIndex:100 }}>
+        <div style={{ fontFamily:"Georgia,serif", fontSize:18, fontWeight:700, color:"#0f0e0d", cursor:"pointer", letterSpacing:"-0.02em" }} onClick={()=>navigate("/")}>
+          Claude AI<span style={{ color:"#c8692a" }}>Community</span>
+          <span style={{ fontSize:12, fontWeight:400, color:"#aaa", marginLeft:6 }}>· AI Automation Community</span>
+        </div>
+        <div style={{ display:"flex", alignItems:"center", gap:10 }}>
+          {currentUser ? <>
+            <Avatar letter={currentUser.avatar_letter||currentUser.username?.[0]} size={28} />
+            <span style={{ fontSize:12, color:"#7a7570" }}>u/{currentUser.username}</span>
+          </> : <>
+            <button onClick={onAuthRequired} style={{ background:"none", border:"1px solid #e8e2d8", borderRadius:3, padding:"6px 14px", fontSize:13, cursor:"pointer", color:"#7a7570" }}>Sign In</button>
+            <button onClick={onAuthRequired} style={{ background:"#c8692a", color:"white", border:"none", borderRadius:3, padding:"7px 16px", fontSize:13, fontWeight:500, cursor:"pointer" }}>Join Free</button>
+          </>}
+        </div>
+      </div>
 
-      <div style={{ background: "white", border: "1px solid #e8e2d8", borderRadius: 6, padding: "20px 20px 16px", marginBottom: 20 }}>
-        <div style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: 10, flexWrap: "wrap" }}>
-          <span style={{ fontSize: 11, background: "#f5f0e8", border: "1px solid #e8e2d8", borderRadius: 100, padding: "2px 8px", color: "#7a7570" }}>{ch?.icon} {ch?.label}</span>
-          <Avatar letter={post.author_username?.[0]} size={22} />
-          <span style={{ fontSize: 12, color: "#7a7570" }}>u/{post.author_username}</span>
-          <span style={{ fontSize: 12, color: "#aaa" }}>· {timeAgo(post.created_at)}</span>
-          <button onClick={e => handleShare(e, post.id)} style={{ marginLeft: "auto", background: "none", border: "1px solid #e8e2d8", borderRadius: 3, padding: "4px 10px", fontSize: 12, cursor: "pointer", color: copiedId === post.id ? "#1e7a47" : "#7a7570" }}>
-            {copiedId === post.id ? "✓ Copied!" : "🔗 Share"}
-          </button>
+      <div style={{ maxWidth:900, margin:"0 auto", padding:"20px 16px", display:"grid", gridTemplateColumns:"200px 1fr", gap:20 }}>
+        <div>
+          <div style={{ background:"white", border:"1px solid #e8e2d8", borderRadius:6, overflow:"hidden", marginBottom:16 }}>
+            <div style={{ padding:"10px 14px", borderBottom:"1px solid #e8e2d8", fontSize:10, fontWeight:600, letterSpacing:"0.08em", textTransform:"uppercase", color:"#aaa" }}>Channels</div>
+            {[{id:null,label:"All Posts",icon:"🌐"},...CHANNELS].map(ch=>(
+              <div key={ch.id??"all"} onClick={()=>navigate("/")} style={{ padding:"9px 14px", cursor:"pointer", fontSize:13, display:"flex", alignItems:"center", gap:8, color:"#3a3835", borderLeft:"2px solid transparent", transition:"all 0.15s" }}
+                onMouseEnter={e=>e.currentTarget.style.background="#faf8f4"}
+                onMouseLeave={e=>e.currentTarget.style.background="white"}>
+                <span>{ch.icon}</span><span>{ch.label}</span>
+              </div>
+            ))}
+          </div>
+          <div style={{ background:"white", border:"1px solid #e8e2d8", borderRadius:6, padding:14 }}>
+            <div style={{ fontSize:12, fontWeight:600, color:"#0f0e0d", marginBottom:8, fontFamily:"Georgia,serif" }}>About</div>
+            <div style={{ fontSize:12, color:"#7a7570", lineHeight:1.6, marginBottom:12 }}>The home for AI automation builders. Share what you build, learn from others, find work.</div>
+            <div style={{ fontSize:12, color:"#aaa", display:"flex", flexDirection:"column", gap:4 }}>
+              <div>🤖 All AI tools welcome</div>
+              <div>🔒 No real names needed</div>
+              <div>🌍 Global community</div>
+            </div>
+          </div>
+        </div>
+
+        <div>
+          <button onClick={() => navigate("/")} style={{ background: "none", border: "none", cursor: "pointer", color: "#c8692a", fontSize: 13, fontWeight: 500, padding: "0 0 16px", display: "flex", alignItems: "center", gap: 4 }}>← Back to community</button>
+
+          <div style={{ background: "white", border: "1px solid #e8e2d8", borderRadius: 6, padding: "20px 20px 16px", marginBottom: 20 }}>
+            <div style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: 10, flexWrap: "wrap" }}>
+              <span style={{ fontSize: 11, background: "#f5f0e8", border: "1px solid #e8e2d8", borderRadius: 100, padding: "2px 8px", color: "#7a7570" }}>{ch?.icon} {ch?.label}</span>
+              <Avatar letter={post.author_username?.[0]} size={22} />
+              <span style={{ fontSize: 12, color: "#7a7570" }}>u/{post.author_username}</span>
+              <span style={{ fontSize: 12, color: "#aaa" }}>· {timeAgo(post.created_at)}</span>
+              <button onClick={e => handleShare(e, post.id)} style={{ marginLeft: "auto", background: "none", border: "1px solid #e8e2d8", borderRadius: 3, padding: "4px 10px", fontSize: 12, cursor: "pointer", color: copiedId === post.id ? "#1e7a47" : "#7a7570" }}>
+                {copiedId === post.id ? "✓ Copied!" : "🔗 Share"}
+              </button>
         </div>
         <div style={{ fontFamily: "Georgia,serif", fontSize: 20, fontWeight: 700, color: "#0f0e0d", marginBottom: 14, lineHeight: 1.3 }}>{post.title}</div>
         <div style={{ fontSize: 15, color: "#3a3835", lineHeight: 1.8 }}>{post.body}</div>
       </div>
 
-      <div style={{ fontSize: 13, fontWeight: 600, color: "#0f0e0d", marginBottom: 10 }}>{comments.length} Comment{comments.length !== 1 ? "s" : ""}</div>
+          <div style={{ fontSize: 13, fontWeight: 600, color: "#0f0e0d", marginBottom: 10 }}>{comments.length} Comment{comments.length !== 1 ? "s" : ""}</div>
 
-      {currentUser ? (
-        <div style={{ background: "white", border: "1px solid #e8e2d8", borderRadius: 6, padding: 14, marginBottom: 16 }}>
-          <div style={{ fontSize: 12, color: "#aaa", marginBottom: 8 }}>Commenting as u/{currentUser.username}</div>
-          <textarea value={commentText} onChange={e => setCommentText(e.target.value)} placeholder="What are your thoughts?" style={{ width: "100%", minHeight: 80, border: "1px solid #e8e2d8", borderRadius: 4, padding: "10px 12px", fontFamily: "inherit", fontSize: 13, resize: "vertical", color: "#0f0e0d", background: "#faf8f4", outline: "none", boxSizing: "border-box" }} onFocus={e => e.target.style.borderColor = "#c8692a"} onBlur={e => e.target.style.borderColor = "#e8e2d8"} />
-          <div style={{ marginTop: 8, display: "flex", justifyContent: "flex-end" }}>
-            <button onClick={submitComment} disabled={!commentText.trim() || commentLoading} style={{ background: commentText.trim() ? "#c8692a" : "#e8e2d8", color: commentText.trim() ? "white" : "#aaa", border: "none", borderRadius: 3, padding: "7px 18px", fontSize: 13, fontWeight: 500, cursor: commentText.trim() ? "pointer" : "default" }}>{commentLoading ? "Posting..." : "Post Comment"}</button>
-          </div>
-        </div>
-      ) : (
-        <div style={{ background: "#fdf0e8", border: "1px solid #f0d5b8", borderRadius: 6, padding: "14px 16px", marginBottom: 16, display: "flex", alignItems: "center", justifyContent: "space-between" }}>
-          <span style={{ fontSize: 13, color: "#7a7570" }}>Sign in to join the conversation</span>
-          <button onClick={onAuthRequired} style={{ background: "#c8692a", color: "white", border: "none", borderRadius: 3, padding: "6px 14px", fontSize: 12, fontWeight: 500, cursor: "pointer" }}>Sign In</button>
-        </div>
-      )}
+          {currentUser ? (
+            <div style={{ background: "white", border: "1px solid #e8e2d8", borderRadius: 6, padding: 14, marginBottom: 16 }}>
+              <div style={{ fontSize: 12, color: "#aaa", marginBottom: 8 }}>Commenting as u/{currentUser.username}</div>
+              <textarea value={commentText} onChange={e => setCommentText(e.target.value)} placeholder="What are your thoughts?" style={{ width: "100%", minHeight: 80, border: "1px solid #e8e2d8", borderRadius: 4, padding: "10px 12px", fontFamily: "inherit", fontSize: 13, resize: "vertical", color: "#0f0e0d", background: "#faf8f4", outline: "none", boxSizing: "border-box" }} onFocus={e => e.target.style.borderColor = "#c8692a"} onBlur={e => e.target.style.borderColor = "#e8e2d8"} />
+              <div style={{ marginTop: 8, display: "flex", justifyContent: "flex-end" }}>
+                <button onClick={submitComment} disabled={!commentText.trim() || commentLoading} style={{ background: commentText.trim() ? "#c8692a" : "#e8e2d8", color: commentText.trim() ? "white" : "#aaa", border: "none", borderRadius: 3, padding: "7px 18px", fontSize: 13, fontWeight: 500, cursor: commentText.trim() ? "pointer" : "default" }}>{commentLoading ? "Posting..." : "Post Comment"}</button>
+              </div>
+            </div>
+          ) : (
+            <div style={{ background: "#fdf0e8", border: "1px solid #f0d5b8", borderRadius: 6, padding: "14px 16px", marginBottom: 16, display: "flex", alignItems: "center", justifyContent: "space-between" }}>
+              <span style={{ fontSize: 13, color: "#7a7570" }}>Sign in to join the conversation</span>
+              <button onClick={onAuthRequired} style={{ background: "#c8692a", color: "white", border: "none", borderRadius: 3, padding: "6px 14px", fontSize: 12, fontWeight: 500, cursor: "pointer" }}>Sign In</button>
+            </div>
+          )}
 
-      {comments.map(c => (
-        <div key={c.id} style={{ background: "white", border: "1px solid #e8e2d8", borderRadius: 6, padding: "12px 14px", marginBottom: 8 }}>
-          <div style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: 6 }}>
-            <Avatar letter={c.author_username?.[0]} size={24} />
-            <span style={{ fontSize: 12, fontWeight: 500, color: "#0f0e0d" }}>u/{c.author_username}</span>
-            <span style={{ fontSize: 12, color: "#aaa" }}>· {timeAgo(c.created_at)}</span>
-          </div>
-          <div style={{ fontSize: 13, color: "#3a3835", lineHeight: 1.65, paddingLeft: 32 }}>{c.body}</div>
+          {comments.map(c => (
+            <div key={c.id} style={{ background: "white", border: "1px solid #e8e2d8", borderRadius: 6, padding: "12px 14px", marginBottom: 8 }}>
+              <div style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: 6 }}>
+                <Avatar letter={c.author_username?.[0]} size={24} />
+                <span style={{ fontSize: 12, fontWeight: 500, color: "#0f0e0d" }}>u/{c.author_username}</span>
+                <span style={{ fontSize: 12, color: "#aaa" }}>· {timeAgo(c.created_at)}</span>
+              </div>
+              <div style={{ fontSize: 13, color: "#3a3835", lineHeight: 1.65, paddingLeft: 32 }}>{c.body}</div>
         </div>
       ))}
-      {comments.length === 0 && <div style={{ textAlign: "center", padding: "30px 0", color: "#aaa", fontSize: 13 }}>No comments yet. Be the first.</div>}
+          {comments.length === 0 && <div style={{ textAlign: "center", padding: "30px 0", color: "#aaa", fontSize: 13 }}>No comments yet. Be the first.</div>}
+        </div>
+      </div>
     </div>
   );
 }
