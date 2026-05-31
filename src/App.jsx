@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useCallback, useRef } from "react";
+import React, { useState, useEffect, useCallback } from "react";
 import { createClient } from "@supabase/supabase-js";
 import { useNavigate, useParams, Routes, Route } from "react-router-dom";
 
@@ -70,6 +70,16 @@ function VoteBtn({ count, voted, onUp, onDown }) {
       <span style={{ fontSize:13, fontWeight:600, color:voted?"#c8692a":"#555", minWidth:20, textAlign:"center" }}>{count}</span>
       <button onClick={onDown} style={{ background:"none", border:"none", cursor:"pointer", color:voted===-1?"#5a7ca5":"#aaa", fontSize:16, padding:"2px 6px", borderRadius:4, lineHeight:1 }}>▼</button>
     </div>
+  );
+}
+
+function ShareIcon({ size=14, color="currentColor" }) {
+  return (
+    <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke={color} strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" style={{ display:"inline-block", verticalAlign:"middle" }}>
+      <path d="M4 12v8a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-8" />
+      <polyline points="16 6 12 2 8 6" />
+      <line x1="12" y1="2" x2="12" y2="15" />
+    </svg>
   );
 }
 
@@ -305,7 +315,7 @@ function NewPostModal({ channels, currentUser, onSubmit, onClose }) {
   const [imagePreview, setImagePreview] = useState(null);
   const [imageError, setImageError] = useState("");
   const [loading, setLoading] = useState(false);
-  const fileRef = useRef();
+  const fileInputId = `file-input-${Math.random().toString(36).substr(2,9)}`;
 
   const handleImage = (e) => {
     const file = e.target.files[0];
@@ -327,7 +337,7 @@ function NewPostModal({ channels, currentUser, onSubmit, onClose }) {
     setImageFile(null);
     setImagePreview(null);
     setImageError("");
-    if (fileRef.current) fileRef.current.value = "";
+    const fi = document.getElementById(fileInputId); if (fi) fi.value = "";
   };
 
   const submit = async () => {
@@ -381,14 +391,14 @@ function NewPostModal({ channels, currentUser, onSubmit, onClose }) {
               <button onClick={removeImage} style={{ position:"absolute", top:6, right:6, background:"rgba(15,14,13,0.7)", color:"white", border:"none", borderRadius:"50%", width:24, height:24, cursor:"pointer", fontSize:14, display:"flex", alignItems:"center", justifyContent:"center" }}>×</button>
             </div>
           ) : (
-            <div onClick={()=>fileRef.current?.click()} style={{ border:"2px dashed #e8e2d8", borderRadius:4, padding:"20px", textAlign:"center", cursor:"pointer", transition:"border-color 0.15s" }} onMouseEnter={e=>e.currentTarget.style.borderColor="#c8692a"} onMouseLeave={e=>e.currentTarget.style.borderColor="#e8e2d8"}>
+            <div onClick={()=>document.getElementById(fileInputId)?.click()} style={{ border:"2px dashed #e8e2d8", borderRadius:4, padding:"20px", textAlign:"center", cursor:"pointer", transition:"border-color 0.15s" }} onMouseEnter={e=>e.currentTarget.style.borderColor="#c8692a"} onMouseLeave={e=>e.currentTarget.style.borderColor="#e8e2d8"}>
               <div style={{ fontSize:24, marginBottom:6 }}>📎</div>
               <div style={{ fontSize:13, color:"#7a7570" }}>Click to attach an image</div>
               <div style={{ fontSize:11, color:"#aaa", marginTop:4 }}>PNG, JPG, GIF up to 4MB</div>
             </div>
           )}
           {imageError && <div style={{ fontSize:12, color:"#c0392b", marginTop:6 }}>{imageError}</div>}
-          <input ref={fileRef} type="file" accept="image/*" onChange={handleImage} style={{ display:"none" }} />
+          <input id={fileInputId} type="file" accept="image/*" onChange={handleImage} style={{ display:"none" }} />
         </div>
         <div style={{ display:"flex", gap:10, justifyContent:"flex-end" }}>
           <button onClick={onClose} style={{ background:"none", border:"1px solid #e8e2d8", borderRadius:3, padding:"8px 18px", fontSize:13, cursor:"pointer", color:"#7a7570" }}>Cancel</button>
@@ -500,7 +510,7 @@ export function App({ currentUser, setCurrentUser, showAuth, setShowAuth, copied
                 {p.image_url && <img src={p.image_url} alt="post" style={{ marginTop:8, maxWidth:"100%", maxHeight:200, borderRadius:4, border:"1px solid #e8e2d8", display:"block", objectFit:"cover" }} onClick={e=>e.stopPropagation()} />}
                 <div style={{ marginTop:8, display:"flex", gap:12, alignItems:"center" }} onClick={e=>e.stopPropagation()}>
                   <span style={{ fontSize:12, color:"#aaa" }}>💬 {p.comment_count||0} comment{p.comment_count!==1?"s":""}</span>
-                  <button onClick={e=>handleShare(e,p.id)} style={{ background:"none", border:"none", cursor:"pointer", fontSize:12, color:copiedId===p.id?"#1e7a47":"#aaa", padding:0 }}>{copiedId===p.id?"✓ Link copied!":"🔗 Share"}</button>
+                  <button onClick={e=>handleShare(e,p.id)} style={{ background:"none", border:"none", cursor:"pointer", fontSize:12, color:copiedId===p.id?"#1e7a47":"#aaa", padding:0 }}>{copiedId===p.id ? "✓ Copied!" : <><ShareIcon size={12} />{" Share"}</>}</button>
                   <button onClick={e=>{e.stopPropagation();if(!currentUser){setShowAuth(true);return;}setReportTarget({postId:p.id});}} style={{ background:"none", border:"none", cursor:"pointer", fontSize:12, color:"#aaa", padding:0 }}>🚩 Report</button>
                   {currentUser?.is_admin===true && <button onClick={e=>handleDeletePost(e,p.id,p.image_url)} style={{ background:"none", border:"none", cursor:"pointer", fontSize:12, color:"#c0392b", padding:0 }}>🗑️ Delete</button>}
                 </div>
@@ -624,7 +634,7 @@ export function PostPage({ currentUser: propUser, onAuthRequired, copiedId, hand
               <Avatar username={post.author_username} seed={post.author_avatar_seed} letter={post.author_username?.[0]} size={22} />
               <span style={{ fontSize:12, color:"#7a7570" }}>u/{post.author_username}</span>
               <span style={{ fontSize:12, color:"#aaa" }}>· {timeAgo(post.created_at)}</span>
-              <button onClick={e=>handleShare(e,post.id)} style={{ marginLeft:"auto", background:"none", border:"1px solid #e8e2d8", borderRadius:3, padding:"4px 10px", fontSize:12, cursor:"pointer", color:copiedId===post.id?"#1e7a47":"#7a7570" }}>{copiedId===post.id?"✓ Copied!":"🔗 Share"}</button>
+              <button onClick={e=>handleShare(e,post.id)} style={{ marginLeft:"auto", background:"none", border:"1px solid #e8e2d8", borderRadius:3, padding:"4px 10px", fontSize:12, cursor:"pointer", color:copiedId===post.id?"#1e7a47":"#7a7570" }}>{copiedId===post.id ? "✓ Copied!" : <><ShareIcon size={12} />{" Share"}</>}</button>
               {currentUser?.is_admin===true && (
                 <button onClick={async(e)=>{ e.stopPropagation(); if(!window.confirm("Delete this post?")) return; if(post.image_url){const fn=post.image_url.split("/").pop();await supabase.storage.from("post-images").remove([fn]);} await supabase.from("votes").delete().eq("post_id",post.id); await supabase.from("comments").delete().eq("post_id",post.id); await supabase.from("posts").delete().eq("id",post.id); navigate("/"); }} style={{ background:"none", border:"1px solid #c0392b", borderRadius:3, padding:"4px 10px", fontSize:12, cursor:"pointer", color:"#c0392b" }}>🗑️ Delete post</button>
               )}
