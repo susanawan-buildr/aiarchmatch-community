@@ -26,8 +26,8 @@ const COLORS = {
 function ac(l) { return COLORS[l?.toUpperCase()] || "#888"; }
 
 function getAvatarUrl(username, seed) {
-  const s = seed || username?.toLowerCase() || "default";
-  return `https://api.dicebear.com/7.x/bottts-neutral/svg?seed=${encodeURIComponent(s)}&backgroundColor=f5f0e8`;
+  const s = seed || username?.toLowerCase() || username || "default";
+  return `https://api.dicebear.com/7.x/bottts/svg?seed=${encodeURIComponent(s)}`;
 }
 
 function getPrefix(user) {
