@@ -341,7 +341,11 @@ export function App() {
               <div>✦ Tools, tips and AI news</div>
               <div>✦ Jobs and collaboration</div>
             </div>
-            <div style={{ fontSize:11, color:"#aaa", paddingTop:8, borderTop:"1px solid #e8e2d8" }}>🌍 Global · Free to join</div>
+            <div style={{ fontSize:11, color:"#aaa", display:"flex", flexDirection:"column", gap:4, paddingTop:8, borderTop:"1px solid #e8e2d8" }}>
+              <div>🤖 All AI tools welcome</div>
+              <div>🌍 Global community</div>
+              <div>✓ Free to join</div>
+            </div>
             <button style={{ display:"block", width:"100%", background:"#c8692a", color:"white", border:"none", borderRadius:3, padding:8, fontSize:12, fontWeight:500, cursor:"pointer" }} onClick={()=>currentUser?setShowNew(true):setShowAuth(true)}>Create Post</button>
           </div>
         </div>
@@ -641,7 +645,11 @@ export function PostPage({ currentUser: propUser, onAuthRequired, onVote, copied
               <div>✦ Tools, tips and AI news</div>
               <div>✦ Jobs and collaboration</div>
             </div>
-            <div style={{ fontSize:11, color:"#aaa", paddingTop:8, borderTop:"1px solid #e8e2d8" }}>🌍 Global · Free to join</div>
+            <div style={{ fontSize:11, color:"#aaa", display:"flex", flexDirection:"column", gap:4, paddingTop:8, borderTop:"1px solid #e8e2d8" }}>
+              <div>🤖 All AI tools welcome</div>
+              <div>🌍 Global community</div>
+              <div>✓ Free to join</div>
+            </div>
                   }} style={{ background:"none", border:"none", cursor:"pointer", fontSize:11, color:"#c0392b", padding:0, display:"flex", alignItems:"center", gap:3 }}>
                     🗑️ Delete comment
                   </button>
