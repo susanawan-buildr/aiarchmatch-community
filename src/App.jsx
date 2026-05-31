@@ -1,5 +1,6 @@
 import { useState, useEffect, useCallback } from "react";
 import { createClient } from "@supabase/supabase-js";
+import { useNavigate, useParams, Routes, Route } from "react-router-dom";
 
 const supabase = createClient(
   "https://vouirrtmhjnzrxxvzboj.supabase.co",
@@ -157,7 +158,7 @@ function NewPostModal({ channels, currentUser, onSubmit, onClose }) {
   );
 }
 
-export default function App() {
+export function App() {
   const [posts, setPosts] = useState([]);
   const [activeChannel, setActiveChannel] = useState(null);
   const [activePost, setActivePost] = useState(null);
@@ -205,6 +206,8 @@ export default function App() {
       .then(({ data }) => setComments(data||[]));
   }, [activePost]);
 
+  const navigate = useNavigate();
+
   const handleVote = async (postId, dir) => {
     if (!currentUser) { setShowAuth(true); return; }
     const post = posts.find(p => p.id === postId);
@@ -223,6 +226,24 @@ export default function App() {
     if (!currentUser) return;
     const { data: np } = await supabase.from("posts").insert({ author_id: currentUser.id, author_username: currentUser.username, channel: data.channel, title: data.title, body: data.body, votes: 1 }).select().single();
     if (np) setPosts(ps => [{ ...np, comment_count: 0, userVote: 1 }, ...ps]);
+  };
+
+  const handleDeletePost = async (e, postId) => {
+    e.stopPropagation();
+    if (!currentUser?.is_admin) return;
+    if (!window.confirm("Delete this post? This cannot be undone.")) return;
+    await supabase.from("votes").delete().eq("post_id", postId);
+    await supabase.from("comments").delete().eq("post_id", postId);
+    await supabase.from("posts").delete().eq("id", postId);
+    setPosts(ps => ps.filter(p => p.id !== postId));
+    if (activePost?.id === postId) setActivePost(null);
+  };
+
+  const handleDeleteComment = async (commentId) => {
+    if (!currentUser?.is_admin) return;
+    if (!window.confirm("Delete this comment?")) return;
+    await supabase.from("comments").delete().eq("id", commentId);
+    setComments(cs => cs.filter(c => c.id !== commentId));
   };
 
   const handleComment = async () => {
@@ -288,7 +309,7 @@ export default function App() {
         <div>
           {activePost ? (
             <div>
-              <button onClick={()=>setActivePost(null)} style={{ background:"none", border:"none", cursor:"pointer", color:"#c8692a", fontSize:13, fontWeight:500, padding:"0 0 16px", display:"flex", alignItems:"center", gap:4 }}>← Back</button>
+              <button onClick={()=>navigate(-1)} style={{ background:"none", border:"none", cursor:"pointer", color:"#c8692a", fontSize:13, fontWeight:500, padding:"0 0 16px", display:"flex", alignItems:"center", gap:4 }}>← Back</button>
               <div style={{ ...s.card, padding:"20px 20px 16px", marginBottom:20 }}>
                 <div style={{ display:"flex", gap:14 }}>
                   <VoteBtn count={activePost.votes} voted={activePost.userVote} onUp={()=>handleVote(activePost.id,1)} onDown={()=>handleVote(activePost.id,-1)} />
@@ -349,7 +370,7 @@ export default function App() {
                 <span style={{ marginLeft:"auto", fontSize:12, color:"#aaa" }}>{sorted.length} post{sorted.length!==1?"s":""}</span>
               </div>
               {sorted.map(p=>(
-                <div key={p.id} onClick={()=>setActivePost(p)} style={{ ...s.card, padding:"14px 16px", display:"flex", gap:12, cursor:"pointer", marginBottom:8, transition:"all 0.15s" }} onMouseEnter={e=>{e.currentTarget.style.borderColor="#c8692a";e.currentTarget.style.boxShadow="0 2px 12px rgba(0,0,0,0.06)";}} onMouseLeave={e=>{e.currentTarget.style.borderColor="#e8e2d8";e.currentTarget.style.boxShadow="none";}}>
+                <div key={p.id} onClick={()=>navigate(`/post/${p.id}`)} style={{ ...s.card, padding:"14px 16px", display:"flex", gap:12, cursor:"pointer", marginBottom:8, transition:"all 0.15s" }} onMouseEnter={e=>{e.currentTarget.style.borderColor="#c8692a";e.currentTarget.style.boxShadow="0 2px 12px rgba(0,0,0,0.06)";}} onMouseLeave={e=>{e.currentTarget.style.borderColor="#e8e2d8";e.currentTarget.style.boxShadow="none";}}>
                   <div onClick={e=>e.stopPropagation()}>
                     <VoteBtn count={p.votes} voted={p.userVote} onUp={()=>handleVote(p.id,1)} onDown={()=>handleVote(p.id,-1)} />
                   </div>
@@ -362,7 +383,9 @@ export default function App() {
                     </div>
                     <div style={{ fontFamily:"Georgia,serif", fontSize:15, fontWeight:700, color:"#0f0e0d", marginBottom:6, lineHeight:1.3 }}>{p.title}</div>
                     <div style={{ fontSize:13, color:"#7a7570", lineHeight:1.6, display:"-webkit-box", WebkitLineClamp:2, WebkitBoxOrient:"vertical", overflow:"hidden" }}>{p.body}</div>
-                    <div style={{ marginTop:8, display:"flex", gap:12, alignItems:"center" }}><span style={{ fontSize:12, color:"#aaa" }}>💬 {p.comment_count||0} comment{p.comment_count!==1?"s":""}</span><button onClick={e=>handleShare(e,p.id)} style={{ background:"none", border:"none", cursor:"pointer", fontSize:12, color:copiedId===p.id?"#1e7a47":"#aaa", display:"flex", alignItems:"center", gap:4, padding:0 }}>{copiedId===p.id ? "✓ Link copied!" : "🔗 Share"}</button></div>
+                    <div style={{ marginTop:8, display:"flex", gap:12, alignItems:"center" }}><span style={{ fontSize:12, color:"#aaa" }}>💬 {p.comment_count||0} comment{p.comment_count!==1?"s":""}</span><button onClick={e=>handleShare(e,p.id)} style={{ background:"none", border:"none", cursor:"pointer", fontSize:12, color:copiedId===p.id?"#1e7a47":"#aaa", display:"flex", alignItems:"center", gap:4, padding:0 }}>{copiedId===p.id ? "✓ Link copied!" : "🔗 Share"}</button>
+                      {currentUser?.is_admin && <button onClick={e=>handleDeletePost(e,p.id)} style={{ background:"none", border:"none", cursor:"pointer", fontSize:12, color:"#c0392b", display:"flex", alignItems:"center", gap:4, padding:0, marginLeft:4 }}>🗑️ Delete</button>}
+                    </div>
                   </div>
                 </div>
               ))}
@@ -381,6 +404,125 @@ export default function App() {
 
       {showNew && <NewPostModal channels={CHANNELS} currentUser={currentUser} onSubmit={handleNewPost} onClose={()=>setShowNew(false)} />}
       {showAuth && <AuthModal onClose={()=>setShowAuth(false)} onLogin={user=>{setCurrentUser(user);setShowAuth(false);}} />}
+    </div>
+  );
+}
+
+// ─── ROOT WRAPPER ───
+export default function Root() {
+  const [currentUser, setCurrentUser] = useState(null);
+  const [showAuth, setShowAuth] = useState(false);
+  const [copiedId, setCopiedId] = useState(null);
+
+  useEffect(() => {
+    supabase.auth.getSession().then(async ({ data: { session } }) => {
+      if (session) {
+        const { data: u } = await supabase.from("users").select("*").eq("id", session.user.id).single();
+        if (u) setCurrentUser(u);
+      }
+    });
+  }, []);
+
+  const handleShare = (e, postId) => {
+    e.stopPropagation();
+    const url = `${window.location.origin}/post/${postId}`;
+    navigator.clipboard?.writeText(url).then(() => {
+      setCopiedId(postId);
+      setTimeout(() => setCopiedId(null), 2000);
+    });
+  };
+
+  return (
+    <>
+      <Routes>
+        <Route path="/" element={<App currentUser={currentUser} setCurrentUser={setCurrentUser} showAuth={showAuth} setShowAuth={setShowAuth} copiedId={copiedId} handleShare={handleShare} />} />
+        <Route path="/post/:id" element={<PostPage currentUser={currentUser} onAuthRequired={() => setShowAuth(true)} copiedId={copiedId} handleShare={handleShare} />} />
+      </Routes>
+      {showAuth && <AuthModal onClose={() => setShowAuth(false)} onLogin={user => { setCurrentUser(user); setShowAuth(false); }} />}
+    </>
+  );
+}
+
+// ─── POST PAGE (direct URL access) ───
+export function PostPage({ currentUser, onAuthRequired, onVote, copiedId, handleShare }) {
+  const { id } = useParams();
+  const navigate = useNavigate();
+  const [post, setPost] = useState(null);
+  const [comments, setComments] = useState([]);
+  const [commentText, setCommentText] = useState("");
+  const [loading, setLoading] = useState(true);
+  const [commentLoading, setCommentLoading] = useState(false);
+
+  useEffect(() => {
+    supabase.from("posts").select("*").eq("id", id).single()
+      .then(({ data }) => { setPost(data ? { ...data, userVote: 0 } : null); setLoading(false); });
+    supabase.from("comments").select("*").eq("post_id", id).order("created_at", { ascending: true })
+      .then(({ data }) => setComments(data || []));
+  }, [id]);
+
+  const submitComment = async () => {
+    if (!currentUser || !commentText.trim()) return;
+    setCommentLoading(true);
+    const { data: nc } = await supabase.from("comments").insert({
+      post_id: id, author_id: currentUser.id,
+      author_username: currentUser.username, body: commentText.trim()
+    }).select().single();
+    if (nc) setComments(cs => [...cs, nc]);
+    setCommentText("");
+    setCommentLoading(false);
+  };
+
+  if (loading) return <div style={{ padding: 60, textAlign: "center", color: "#aaa" }}>Loading...</div>;
+  if (!post) return <div style={{ padding: 60, textAlign: "center", color: "#aaa" }}>Post not found. <button onClick={() => navigate("/")} style={{ color: "#c8692a", background: "none", border: "none", cursor: "pointer" }}>Go home</button></div>;
+
+  const ch = CHANNELS.find(c => c.id === post.channel);
+
+  return (
+    <div style={{ maxWidth: 700, margin: "0 auto", padding: "20px 16px" }}>
+      <button onClick={() => navigate("/")} style={{ background: "none", border: "none", cursor: "pointer", color: "#c8692a", fontSize: 13, fontWeight: 500, padding: "0 0 16px", display: "flex", alignItems: "center", gap: 4 }}>← Back to community</button>
+
+      <div style={{ background: "white", border: "1px solid #e8e2d8", borderRadius: 6, padding: "20px 20px 16px", marginBottom: 20 }}>
+        <div style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: 10, flexWrap: "wrap" }}>
+          <span style={{ fontSize: 11, background: "#f5f0e8", border: "1px solid #e8e2d8", borderRadius: 100, padding: "2px 8px", color: "#7a7570" }}>{ch?.icon} {ch?.label}</span>
+          <Avatar letter={post.author_username?.[0]} size={22} />
+          <span style={{ fontSize: 12, color: "#7a7570" }}>u/{post.author_username}</span>
+          <span style={{ fontSize: 12, color: "#aaa" }}>· {timeAgo(post.created_at)}</span>
+          <button onClick={e => handleShare(e, post.id)} style={{ marginLeft: "auto", background: "none", border: "1px solid #e8e2d8", borderRadius: 3, padding: "4px 10px", fontSize: 12, cursor: "pointer", color: copiedId === post.id ? "#1e7a47" : "#7a7570" }}>
+            {copiedId === post.id ? "✓ Copied!" : "🔗 Share"}
+          </button>
+        </div>
+        <div style={{ fontFamily: "Georgia,serif", fontSize: 20, fontWeight: 700, color: "#0f0e0d", marginBottom: 14, lineHeight: 1.3 }}>{post.title}</div>
+        <div style={{ fontSize: 15, color: "#3a3835", lineHeight: 1.8 }}>{post.body}</div>
+      </div>
+
+      <div style={{ fontSize: 13, fontWeight: 600, color: "#0f0e0d", marginBottom: 10 }}>{comments.length} Comment{comments.length !== 1 ? "s" : ""}</div>
+
+      {currentUser ? (
+        <div style={{ background: "white", border: "1px solid #e8e2d8", borderRadius: 6, padding: 14, marginBottom: 16 }}>
+          <div style={{ fontSize: 12, color: "#aaa", marginBottom: 8 }}>Commenting as u/{currentUser.username}</div>
+          <textarea value={commentText} onChange={e => setCommentText(e.target.value)} placeholder="What are your thoughts?" style={{ width: "100%", minHeight: 80, border: "1px solid #e8e2d8", borderRadius: 4, padding: "10px 12px", fontFamily: "inherit", fontSize: 13, resize: "vertical", color: "#0f0e0d", background: "#faf8f4", outline: "none", boxSizing: "border-box" }} onFocus={e => e.target.style.borderColor = "#c8692a"} onBlur={e => e.target.style.borderColor = "#e8e2d8"} />
+          <div style={{ marginTop: 8, display: "flex", justifyContent: "flex-end" }}>
+            <button onClick={submitComment} disabled={!commentText.trim() || commentLoading} style={{ background: commentText.trim() ? "#c8692a" : "#e8e2d8", color: commentText.trim() ? "white" : "#aaa", border: "none", borderRadius: 3, padding: "7px 18px", fontSize: 13, fontWeight: 500, cursor: commentText.trim() ? "pointer" : "default" }}>{commentLoading ? "Posting..." : "Post Comment"}</button>
+          </div>
+        </div>
+      ) : (
+        <div style={{ background: "#fdf0e8", border: "1px solid #f0d5b8", borderRadius: 6, padding: "14px 16px", marginBottom: 16, display: "flex", alignItems: "center", justifyContent: "space-between" }}>
+          <span style={{ fontSize: 13, color: "#7a7570" }}>Sign in to join the conversation</span>
+          <button onClick={onAuthRequired} style={{ background: "#c8692a", color: "white", border: "none", borderRadius: 3, padding: "6px 14px", fontSize: 12, fontWeight: 500, cursor: "pointer" }}>Sign In</button>
+        </div>
+      )}
+
+      {comments.map(c => (
+        <div key={c.id} style={{ background: "white", border: "1px solid #e8e2d8", borderRadius: 6, padding: "12px 14px", marginBottom: 8 }}>
+          <div style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: 6 }}>
+            <Avatar letter={c.author_username?.[0]} size={24} />
+            <span style={{ fontSize: 12, fontWeight: 500, color: "#0f0e0d" }}>u/{c.author_username}</span>
+            <span style={{ fontSize: 12, color: "#aaa" }}>· {timeAgo(c.created_at)}</span>
+          </div>
+          <div style={{ fontSize: 13, color: "#3a3835", lineHeight: 1.65, paddingLeft: 32 }}>{c.body}</div>
+        </div>
+      ))}
+      {comments.length === 0 && <div style={{ textAlign: "center", padding: "30px 0", color: "#aaa", fontSize: 13 }}>No comments yet. Be the first.</div>}
     </div>
   );
 }
