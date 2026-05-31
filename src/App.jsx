@@ -722,10 +722,9 @@ export function PostPage({ currentUser: propUser, onAuthRequired, copiedId, hand
               <div style={{ fontSize:13, color:"#3a3835", lineHeight:1.65, paddingLeft:32 }}>{c.body}</div>
               {c.image_url && <img src={c.image_url} alt="comment" style={{ marginTop:8, marginLeft:32, maxWidth:"calc(100% - 32px)", maxHeight:300, borderRadius:4, border:"1px solid #e8e2d8", display:"block" }} />}
               <div style={{ paddingLeft:32, marginTop:6, display:"flex", gap:12 }}>
-                {currentUser && !currentUser?.is_admin && (
+                {currentUser ? (
                   <button onClick={()=>setReportTarget({commentId:c.id})} style={{ background:"none", border:"none", cursor:"pointer", fontSize:11, color:"#aaa", padding:0 }}>🚩 Report comment</button>
-                )}
-                {!currentUser && (
+                ) : (
                   <button onClick={onAuthRequired} style={{ background:"none", border:"none", cursor:"pointer", fontSize:11, color:"#aaa", padding:0 }}>🚩 Report comment</button>
                 )}
                 {currentUser?.is_admin===true && (
