@@ -388,6 +388,13 @@ export function App() {
                     <span style={{ fontSize:12, color:"#aaa" }}>· {timeAgo(c.created_at)}</span>
                   </div>
                   <div style={{ fontSize:13, color:"#3a3835", lineHeight:1.65, paddingLeft:32 }}>{c.body}</div>
+                  {currentUser?.is_admin === true && (
+                    <div style={{ paddingLeft:32, marginTop:6 }}>
+                      <button onClick={()=>handleDeleteComment(c.id)} style={{ background:"none", border:"none", cursor:"pointer", fontSize:11, color:"#c0392b", padding:0, display:"flex", alignItems:"center", gap:3 }}>
+                        🗑️ Delete comment
+                      </button>
+                    </div>
+                  )}
                 </div>
               ))}
               {comments.length===0 && <div style={{ textAlign:"center", padding:"30px 0", color:"#aaa", fontSize:13 }}>No comments yet. Be the first.</div>}
@@ -650,6 +657,17 @@ export function PostPage({ currentUser: propUser, onAuthRequired, onVote, copied
                 <span style={{ fontSize: 12, color: "#aaa" }}>· {timeAgo(c.created_at)}</span>
               </div>
               <div style={{ fontSize: 13, color: "#3a3835", lineHeight: 1.65, paddingLeft: 32 }}>{c.body}</div>
+              {currentUser?.is_admin === true && (
+                <div style={{ paddingLeft: 32, marginTop: 6 }}>
+                  <button onClick={async()=>{
+                    if (!window.confirm("Delete this comment?")) return;
+                    await supabase.from("comments").delete().eq("id", c.id);
+                    setComments(cs => cs.filter(x => x.id !== c.id));
+                  }} style={{ background:"none", border:"none", cursor:"pointer", fontSize:11, color:"#c0392b", padding:0, display:"flex", alignItems:"center", gap:3 }}>
+                    🗑️ Delete comment
+                  </button>
+                </div>
+              )}
         </div>
       ))}
           {comments.length === 0 && <div style={{ textAlign: "center", padding: "30px 0", color: "#aaa", fontSize: 13 }}>No comments yet. Be the first.</div>}
